@@ -23,11 +23,11 @@ libclumsy_la_HEADERS = src/clumsy.h
 libclumsy_ladir = .
 
 # SETUP THE UNIT TESTS
-check_PROGRAMS = src/tests/test1
+check_PROGRAMS = src/tests/test1.test
 
-src_tests_test1_SOURCES = src/tests/test1.c
-src_test_test1_CFLAGS = @CHECK_CFLAGS@
-src_tests_test1_LDADD = libclumsy.la @CHECK_LIBS@
+src_tests_test1_test_SOURCES = src/tests/test1.c
+src_test_test1_test_CFLAGS = @CHECK_CFLAGS@
+src_tests_test1_test_LDADD = libclumsy.la @CHECK_LIBS@
 
 # skip unit tests if check is not installed
 if SKIP_CHECK
@@ -43,9 +43,9 @@ endif
 EXTRA_DIST=src/tests/valgrind-wrapper.sh
 
 # ENABLE STATIC ANALYZER SUPPORT
+# analyze all .[ch] files under the ./src and its subdirs, except the tests
 if USE_SPLINT
 analyze:
-	# analyze all .[ch] files under the ./src and its subdirs, except the tests
 	@splint `find ./src -type f -name '*.[ch]' | grep -v './src/tests'`
 endif
 

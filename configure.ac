@@ -39,7 +39,7 @@ AM_CONDITIONAL(SKIP_CHECK, $skip_check)
 # ENABLE SPLINT SUPPORT
 use_splint=false
 AC_ARG_ENABLE(splint,
-              AS_HELP_STRING([--enable-splint], [Enable splint static analizer.])),
+              AS_HELP_STRING([--enable-splint], [Enable splint static analizer.]),
               [use_splint=true])
 
 if [[ "$use_splint" = "true" ]]; then
@@ -55,7 +55,7 @@ AM_CONDITIONAL(USE_SPLINT, $use_splint)
 # ENABLE VALGRIND SUPPORT
 use_valgrind=false
 AC_ARG_ENABLE(valgrind,
-              AS_HELP_STRING([--enable-valgrind], [Use valgrind when running unit tests.])),
+              AS_HELP_STRING([--enable-valgrind], [Use valgrind when running unit tests.]),
               [use_valgrind=true])
 
 if [[ "$use_valgrind" = "true" ]]; then
@@ -69,12 +69,12 @@ fi
 AM_CONDITIONAL(USE_VALGRIND, $use_valgrind)
 
 # ENABLE GCOV COVERAGE ANALYSIS SUPPORT
-coverage=no
+coverage=false
 AC_ARG_ENABLE(coverage,
-              AS_HELP_STRING([--enable-coverage], [Enable tests coverage statistics.])),
-              [coverage=yes])
+              AS_HELP_STRING([--enable-coverage], [Enable tests coverage statistics.]),
+              [coverage=true])
 
-if [[ "$coverage" = "yes" ]]; then
+if [[ "$coverage" = "true" ]]; then
     if [[ "$GCC" = "yes" ]]; then
         CFLAGS="-fprofile-arcs -ftest-coverage $CFLAGS"
     else
