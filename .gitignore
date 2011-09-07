@@ -22,6 +22,7 @@ missing
 *.gcno
 *.gcda
 *.test
+tags
 stamp-h1
 tests/check_*
 config.guess
