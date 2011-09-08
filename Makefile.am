@@ -18,7 +18,7 @@
 
 # DEFINE THE MAIN GOAL
 lib_LTLIBRARIES = libclumsy.la
-libclumsy_la_SOURCES = src/clumsy.c
+libclumsy_la_SOURCES = src/clumsy.h
 libclumsy_la_HEADERS = src/clumsy.h
 libclumsy_ladir = .
 

@@ -19,7 +19,7 @@
 # COMMON autoconf AND automake CONFIG
 AC_PREREQ([2.67])
 AC_INIT([clumsy],[0.0.0],[https://github.com/pmilosev/clumsy/issues],[clumsy],[https://github.com/pmilosev/clumsy])
-AC_CONFIG_SRCDIR([src/clumsy.c])
+AC_CONFIG_SRCDIR([src/clumsy.h])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([subdir-objects])
 
