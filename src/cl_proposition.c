@@ -24,7 +24,6 @@ cl_proposition *
 cl_proposition_new (cl_proposition_func func, void * data)
 {
     cl_proposition * res = malloc(sizeof(cl_proposition));
-
     assert(res != NULL);
 
     res->func = func;

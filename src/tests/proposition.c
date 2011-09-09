@@ -33,16 +33,19 @@ is_grater_than (cl_proposition * proposition)
 
 START_TEST (test_simple_proposition)
 {
+    /* constant FALSE proposition */
     cl_proposition * p1 = cl_proposition_new(NULL, NULL);
     fail_unless(p1);
     fail_if(cl_proposition_eval(p1));
     cl_proposition_destroy(p1);
 
+    /* FALSE proposition */
     int data[2] = {1, 2};
     p1 = cl_proposition_new(&is_grater_than, data);
     fail_unless(p1);
     fail_if(cl_proposition_eval(p1));
 
+    /* TRUE for the current state / interpretation */
     data[0] = 3;
     fail_unless(cl_proposition_eval(p1));
     cl_proposition_destroy(p1);

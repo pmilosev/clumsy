@@ -19,16 +19,14 @@
 CFLAGS = @CFLAGS@ --pedantic --std=c99
 # DEFINE THE MAIN GOAL
 lib_LTLIBRARIES = libclumsy.la
-libclumsy_la_SOURCES = src/clumsy.h\
-					   src/cl_proposition.h src/cl_proposition.c
+libclumsy_la_SOURCES = src/cl_proposition.c
 libclumsy_la_HEADERS = src/clumsy.h
 libclumsy_ladir = .
 
 # SETUP THE UNIT TESTS
 check_PROGRAMS = src/tests/proposition.test
 
-src_tests_proposition_test_SOURCES = src/clumsy.h\
-									 src/tests/proposition.c
+src_tests_proposition_test_SOURCES = src/tests/proposition.c
 src_tests_proposition_test_CFLAGS = @CHECK_CFLAGS@
 src_tests_proposition_test_LDADD = libclumsy.la @CHECK_LIBS@
 
