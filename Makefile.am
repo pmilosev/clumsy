@@ -16,29 +16,32 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+CFLAGS = @CFLAGS@ --pedantic --std=c99
 # DEFINE THE MAIN GOAL
 lib_LTLIBRARIES = libclumsy.la
-libclumsy_la_SOURCES = src/clumsy.h
+libclumsy_la_SOURCES = src/clumsy.h\
+					   src/cl_proposition.h src/cl_proposition.c
 libclumsy_la_HEADERS = src/clumsy.h
 libclumsy_ladir = .
 
 # SETUP THE UNIT TESTS
-check_PROGRAMS = src/tests/test1.test
+check_PROGRAMS = src/tests/proposition.test
 
-src_tests_test1_test_SOURCES = src/tests/test1.c
-src_test_test1_test_CFLAGS = @CHECK_CFLAGS@
-src_tests_test1_test_LDADD = libclumsy.la @CHECK_LIBS@
+src_tests_proposition_test_SOURCES = src/clumsy.h\
+									 src/tests/proposition.c
+src_tests_proposition_test_CFLAGS = @CHECK_CFLAGS@
+src_tests_proposition_test_LDADD = libclumsy.la @CHECK_LIBS@
 
 # skip unit tests if check is not installed
 if SKIP_CHECK
-	TESTS=
+TESTS=
 else
-	TESTS=$(check_PROGRAMS)
+TESTS=$(check_PROGRAMS)
 endif
 
 # ENABLE VALGRIND SUPPORT
 if USE_VALGRIND
-    TESTS_ENVIRONMENT=src/tests/valgrind-wrapper.sh
+TESTS_ENVIRONMENT=src/tests/valgrind-wrapper.sh
 endif
 EXTRA_DIST=src/tests/valgrind-wrapper.sh
 

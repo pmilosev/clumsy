@@ -16,33 +16,19 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "cl_proposition.h"
+#include <assert.h>
 #include <stdlib.h>
-#include <check.h>
 
-START_TEST (test_memory_leak)
+cl_proposition * 
+cl_proposition_new (cl_proposition_func func, void * data)
 {
-}
-END_TEST
+    cl_proposition * res = malloc(sizeof(cl_proposition));
 
-Suite *dummy_suite(void)
-{
-    Suite * s = suite_create("Dummy");
+    assert(res != NULL);
 
-    TCase *tc_core = tcase_create ("MEMORY_LEAK");
-    tcase_add_test (tc_core, test_memory_leak);
-    suite_add_tcase (s, tc_core);
+    res->func = func;
+    res->data = data;
 
-    return s;
-}
-
-int main (void)
-{
-    int number_failed;
-    Suite *s = dummy_suite ();
-    SRunner *sr = srunner_create (s);
-    srunner_run_all (sr, CK_NORMAL);
-    number_failed = srunner_ntests_failed (sr);
-    srunner_free (sr);
-
-    return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+    return res;
 }

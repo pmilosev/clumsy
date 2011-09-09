@@ -16,9 +16,22 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLUMSY_H
-#define CLUMSY_H
+#ifndef CL_PROPOSITION_H
+#define CL_PROPOSITION_H
 
-#include "cl_proposition.h"
+#include <stdbool.h>
 
-#endif /* CLUMSY_H */
+typedef struct cl_proposition_s cl_proposition;
+typedef bool (* cl_proposition_func)(cl_proposition *);
+
+struct cl_proposition_s {
+    cl_proposition_func func;
+    void * data;
+}; 
+
+cl_proposition * cl_proposition_new (cl_proposition_func, void *);
+
+#define cl_proposition_eval(p) (p->func ? p->func(p) : false)
+#define cl_proposition_destroy(p) free(p)
+
+#endif /* CL_PROPOSITION_H */
