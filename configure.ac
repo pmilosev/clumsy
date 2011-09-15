@@ -36,20 +36,12 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.8],
 AM_CONDITIONAL(SKIP_CHECK, $skip_check)
 
 # ENABLE SPLINT SUPPORT
-use_splint=false
-AC_ARG_ENABLE(splint,
-              AS_HELP_STRING([--enable-splint], [Enable splint static analizer.]),
-              [use_splint=true])
+AC_CHECK_PROG(HAVE_SPLINT, splint, true, false)
+AM_CONDITIONAL(USE_SPLINT, $HAVE_SPLINT)
 
-if [[ "$use_splint" = "true" ]]; then
-    AC_CHECK_PROG(HAVE_SPLINT, splint, yes, no)
-
-    if [[ "$HAVE_SPLINT" = "no" ]]; then
-        AC_MSG_ERROR([Splint not found in PATH.])
-    fi
-fi
-
-AM_CONDITIONAL(USE_SPLINT, $use_splint)
+# ENABLE INDENT SUPPORT
+AC_CHECK_PROG(HAVE_INDENT, indent, true, false)
+AM_CONDITIONAL(USE_INDENT, $HAVE_INDENT)
 
 # ENABLE VALGRIND SUPPORT
 use_valgrind=false
