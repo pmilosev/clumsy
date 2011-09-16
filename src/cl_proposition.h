@@ -22,14 +22,14 @@
 #include <stdbool.h>
 
 typedef struct cl_proposition_s cl_proposition;
-typedef bool (* cl_proposition_func)(cl_proposition *);
+typedef bool(*cl_proposition_func) (cl_proposition *);
 
 struct cl_proposition_s {
-    cl_proposition_func func;
-    void * data;
-}; 
+	cl_proposition_func func;
+	void *data;
+};
 
-cl_proposition * cl_proposition_new (cl_proposition_func, void *);
+cl_proposition *cl_proposition_new(cl_proposition_func, void *);
 
 #define cl_proposition_eval(p) (p->func ? p->func(p) : false)
 #define cl_proposition_destroy(p) free(p)

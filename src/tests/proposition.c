@@ -20,59 +20,57 @@
 #include <stdlib.h>
 #include "../clumsy.h"
 
-bool 
-is_grater_than (cl_proposition * proposition)
+bool is_grater_than(cl_proposition * proposition)
 {
-    fail_unless(proposition);
-    fail_unless(proposition->func == &is_grater_than);
-    fail_unless(proposition->data);
-    
-    int * data = (int *) proposition->data;
-    return data[0] > data[1];
+	fail_unless(proposition);
+	fail_unless(proposition->func == &is_grater_than);
+	fail_unless(proposition->data);
+
+	int *data = (int *)proposition->data;
+	return data[0] > data[1];
 }
 
-START_TEST (test_simple_proposition)
+START_TEST(test_simple_proposition)
 {
-    /* constant FALSE proposition */
-    cl_proposition * p1 = cl_proposition_new(NULL, NULL);
-    fail_unless(p1);
-    fail_if(cl_proposition_eval(p1));
-    cl_proposition_destroy(p1);
+	/* constant FALSE proposition */
+	cl_proposition *p1 = cl_proposition_new(NULL, NULL);
+	fail_unless(p1);
+	fail_if(cl_proposition_eval(p1));
+	cl_proposition_destroy(p1);
 
-    /* FALSE proposition */
-    int data[2] = {1, 2};
-    p1 = cl_proposition_new(&is_grater_than, data);
-    fail_unless(p1);
-    fail_if(cl_proposition_eval(p1));
+	/* FALSE proposition */
+	int data[2] = { 1, 2 };
+	p1 = cl_proposition_new(&is_grater_than, data);
+	fail_unless(p1);
+	fail_if(cl_proposition_eval(p1));
 
-    /* TRUE for the current state / interpretation */
-    data[0] = 3;
-    fail_unless(cl_proposition_eval(p1));
-    cl_proposition_destroy(p1);
-}
-END_TEST
-
-Suite *
-test_suite (void)
-{
-    Suite * s = suite_create("TEST PROPOSITIONS");
-
-    TCase * tc_core = tcase_create("TEST_SIMPLE_PROPOSITION");
-    tcase_add_test(tc_core, test_simple_proposition);
-    suite_add_tcase(s, tc_core);
-
-    return s;
+	/* TRUE for the current state / interpretation */
+	data[0] = 3;
+	fail_unless(cl_proposition_eval(p1));
+	cl_proposition_destroy(p1);
 }
 
-int 
-main (void)
-{
-    int number_failed;
-    Suite * s = test_suite();
-    SRunner * sr = srunner_create(s);
-    srunner_run_all(sr, CK_NORMAL);
-    number_failed = srunner_ntests_failed(sr);
-    srunner_free(sr);
+END_TEST;
 
-    return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+Suite *test_suite(void)
+{
+	Suite *s = suite_create("TEST PROPOSITIONS");
+
+	TCase *tc_core = tcase_create("TEST_SIMPLE_PROPOSITION");
+	tcase_add_test(tc_core, test_simple_proposition);
+	suite_add_tcase(s, tc_core);
+
+	return s;
+}
+
+int main(void)
+{
+	int number_failed;
+	Suite *s = test_suite();
+	SRunner *sr = srunner_create(s);
+	srunner_run_all(sr, CK_NORMAL);
+	number_failed = srunner_ntests_failed(sr);
+	srunner_free(sr);
+
+	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

@@ -20,14 +20,13 @@
 #include <assert.h>
 #include <stdlib.h>
 
-cl_proposition * 
-cl_proposition_new (cl_proposition_func func, void * data)
+cl_proposition *cl_proposition_new(cl_proposition_func func, void *data)
 {
-    cl_proposition * res = malloc(sizeof(cl_proposition));
-    assert(res != NULL);
+	cl_proposition *res = malloc(sizeof(cl_proposition));
+	assert(res != NULL);
 
-    res->func = func;
-    res->data = data;
+	res->func = func;
+	res->data = data;
 
-    return res;
+	return res;
 }
