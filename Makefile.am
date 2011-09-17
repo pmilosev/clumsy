@@ -71,8 +71,9 @@ endif
 # CLEAN ALL FILES THAT CAN BE GENERATED WITH AUTORECONF
 WC_STATE = `git status --porcelain`
 assert_wc_clean:
-	@if [ -n "$(WC_STATE)" ]; than \
-		echo "Working copy is not clean !!!" && false; \
+	@if [ -n "$(WC_STATE)" ]; then \
+		echo "Working copy is not clean !!!"; \
+		false; \
 	fi
 
 autoclean: assert_wc_clean distclean
