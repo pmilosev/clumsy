@@ -113,18 +113,23 @@ bool cl_proposition_eval(cl_proposition * p)
 	return p->_context.op ? p->_context.op(p) : false;
 }
 
-/* TODO */
 bool cl_proposition_not_op(cl_proposition * self)
 {
-	return true;
+	return !cl_proposition_eval(self->_context.argv[0]);
 }
 
 bool cl_proposition_and_op(cl_proposition * self)
 {
-	return true;
+	bool r1 = cl_proposition_eval(self->_context.argv[0]);
+	bool r2 = cl_proposition_eval(self->_context.argv[1]);
+
+	return r1 && r2;
 }
 
 bool cl_proposition_or_op(cl_proposition * self)
 {
-	return true;
+	bool r1 = cl_proposition_eval(self->_context.argv[0]);
+	bool r2 = cl_proposition_eval(self->_context.argv[1]);
+
+	return r1 || r2;
 }

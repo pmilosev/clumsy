@@ -36,7 +36,7 @@ START_TEST(test_atomic_proposition)
 	cl_proposition *p = cl_proposition_new(NULL, NULL);
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-	cl_object_release((cl_object *) p);
+	cl_proposition_release(p);
 
 	/* FALSE proposition */
 	int data[2] = { 1, 2 };
@@ -47,7 +47,147 @@ START_TEST(test_atomic_proposition)
 	/* TRUE for the current state / interpretation */
 	data[0] = 3;
 	fail_unless(cl_proposition_eval(p));
-	cl_object_release((cl_object *) p);
+	cl_proposition_release(p);
+}
+
+END_TEST;
+
+START_TEST(test_complex_proposition)
+{
+	cl_proposition *p = NULL;
+
+	/* false */
+	cl_proposition *pfalse = cl_proposition_new(NULL, NULL);
+	fail_if(pfalse == NULL);
+	fail_if(cl_proposition_eval(pfalse));
+
+	/* not false */
+	p = cl_proposition_retain(cl_proposition_not(pfalse));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* not true */
+	p = cl_proposition_retain(cl_proposition_not
+				  (cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true and true */
+	p = cl_proposition_retain(cl_proposition_and
+				  (cl_proposition_not(pfalse),
+				   cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true and false */
+	p = cl_proposition_retain(cl_proposition_and
+				  (cl_proposition_not(pfalse), pfalse));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false and true */
+	p = cl_proposition_retain(cl_proposition_and
+				  (pfalse, cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false and false */
+	p = cl_proposition_retain(cl_proposition_and(pfalse, pfalse));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true or true */
+	p = cl_proposition_retain(cl_proposition_or
+				  (cl_proposition_not(pfalse),
+				   cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true or false */
+	p = cl_proposition_retain(cl_proposition_or
+				  (cl_proposition_not(pfalse), pfalse));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false or true */
+	p = cl_proposition_retain(cl_proposition_or
+				  (pfalse, cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false or false */
+	p = cl_proposition_retain(cl_proposition_or(pfalse, pfalse));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true imply true */
+	p = cl_proposition_retain(cl_proposition_imply
+				  (cl_proposition_not(pfalse),
+				   cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true imply false */
+	p = cl_proposition_retain(cl_proposition_imply
+				  (cl_proposition_not(pfalse), pfalse));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false imply true */
+	p = cl_proposition_retain(cl_proposition_imply
+				  (pfalse, cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false imply false */
+	p = cl_proposition_retain(cl_proposition_imply(pfalse, pfalse));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	pfalse = cl_proposition_release(pfalse);
+	fail_unless(pfalse == NULL);
 }
 
 END_TEST;
@@ -58,6 +198,7 @@ Suite *test_suite(void)
 
 	TCase *tc_core = tcase_create("TEST_PROPOSITION");
 	tcase_add_test(tc_core, test_atomic_proposition);
+	tcase_add_test(tc_core, test_complex_proposition);
 	suite_add_tcase(s, tc_core);
 
 	return s;

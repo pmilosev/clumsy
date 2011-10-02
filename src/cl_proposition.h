@@ -58,19 +58,25 @@ bool cl_proposition_and_op(cl_proposition * self);
 /** The OR operator. */
 bool cl_proposition_or_op(cl_proposition * self);
 
+/** Retains the proposition */
+#define cl_proposition_retain(p) ((cl_proposition *) cl_object_retain((cl_object *) p))
+
+/** Releases the proposition */
+#define cl_proposition_release(p) ((cl_proposition *) cl_object_release((cl_object *) p))
+
 /** Initializes a new proposition, negation of the provided one. */
-#define cl_proposition_not(p) cl_proposition_init(&cl_proposition_not, p)
+#define cl_proposition_not(p) cl_proposition_init(&cl_proposition_not_op, p)
 
 /** Initializes a new proposition, conjunction of the provided propositions. */
-#define cl_proposition_and(p1, p2) cl_proposition_init(&cl_proposition_and, p1, p2)
+#define cl_proposition_and(p1, p2) cl_proposition_init(&cl_proposition_and_op, p1, p2)
 
 /** Initializes a new proposition, disjunction of the provided propositions. */
-#define cl_proposition_or(p1, p2) cl_proposition_init(&cl_proposition_or, p1, p2)
+#define cl_proposition_or(p1, p2) cl_proposition_init(&cl_proposition_or_op, p1, p2)
 
 /** Initializes a new proposition, implicaton from p1 to p2. */
 #define cl_proposition_imply(p1, p2) cl_proposition_or(cl_proposition_not(p1), p2)
 
 /** Initializes and retains a new proposition */
-#define cl_proposition_new(op, ...) ((cl_proposition *) cl_object_retain((cl_object *) cl_proposition_init(op, __VA_ARGS__)))
+#define cl_proposition_new(op, ...) cl_proposition_retain(cl_proposition_init(op, __VA_ARGS__))
 
 #endif				/* CL_PROPOSITION_H */
