@@ -26,7 +26,7 @@
 typedef struct cl_proposition_s cl_proposition;
 
 /** Function type representing the logic operator */
-typedef bool(*cl_proposition_operator) (cl_proposition *self);
+typedef bool(*cl_proposition_operator) (cl_proposition * self);
 
 /** Structure holding logic context of the proposition */
 typedef struct cl_proposition_context_s cl_proposition_context;
@@ -46,17 +46,17 @@ struct cl_proposition_context_s {
 cl_proposition *cl_proposition_init(cl_proposition_operator op, ...);
 
 /** Returnes a pointer to the proposition's context */
-cl_proposition_context *cl_proposition_get_context(cl_proposition *p);
+cl_proposition_context *cl_proposition_get_context(cl_proposition * p);
 
 /** Evaluates the proposition. */
-bool cl_proposition_eval(cl_proposition *p);
+bool cl_proposition_eval(cl_proposition * p);
 
 /** The NOT operator. */
-bool cl_proposition_not_op(cl_proposition *self);
+bool cl_proposition_not_op(cl_proposition * self);
 /** The AND operator. */
-bool cl_proposition_and_op(cl_proposition *self);
+bool cl_proposition_and_op(cl_proposition * self);
 /** The OR operator. */
-bool cl_proposition_or_op(cl_proposition *self);
+bool cl_proposition_or_op(cl_proposition * self);
 
 /** Initializes a new proposition, negation of the provided one. */
 #define cl_proposition_not(p) cl_proposition_init(&cl_proposition_not, p)
@@ -73,4 +73,4 @@ bool cl_proposition_or_op(cl_proposition *self);
 /** Initializes and retains a new proposition */
 #define cl_proposition_new(op, ...) ((cl_proposition *) cl_object_retain((cl_object *) cl_proposition_init(op, __VA_ARGS__)))
 
-#endif /* CL_PROPOSITION_H */
+#endif				/* CL_PROPOSITION_H */

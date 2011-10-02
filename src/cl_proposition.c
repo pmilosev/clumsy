@@ -22,9 +22,9 @@
 #include "cl_proposition.h"
 #include "cl_proposition_rep.h"
 
-static void destructor(cl_object* obj)
+static void destructor(cl_object * obj)
 {
-	cl_proposition *p = (cl_proposition *)obj;
+	cl_proposition *p = (cl_proposition *) obj;
 
 	/** the context of the atomic propositions is managed outside of the proposition. */
 	if (p->_depth) {
@@ -39,36 +39,40 @@ cl_proposition *cl_proposition_init(cl_proposition_operator op, ...)
 	size_t argc = 1;
 
 	/* initialize the object */
-	cl_proposition *res = (cl_proposition *) cl_object_init(sizeof(cl_proposition), &destructor);
+	cl_proposition *res =
+	    (cl_proposition *) cl_object_init(sizeof(cl_proposition),
+					      &destructor);
 
 	/* set the operator (NULL will evaluate to FALSE) */
 	res->_context.op = op;
 
 	/* expecting 2 arguments for OR and AND, 1 argument for everything else */
 	if ((op == &cl_proposition_and_op)
-		|| (op == &cl_proposition_or_op)) {
+	    || (op == &cl_proposition_or_op)) {
 		argc = 2;
 	}
-	
+
 	/* load the arguments */
-	va_start(ap, op); 
+	va_start(ap, op);
 	res->_context.argv[0] = argc > 0 ? va_arg(ap, void *) : NULL;
 	res->_context.argv[1] = argc > 1 ? va_arg(ap, void *) : NULL;
 	va_end(ap);
 
-	/* if this is a brand new proposition set the depth to 0*/
+	/* if this is a brand new proposition set the depth to 0 */
 	res->_depth = 0;
 
 	/* in a case of binary operator */
 	if ((op == &cl_proposition_and_op)
-		|| (op == &cl_proposition_or_op)) {
+	    || (op == &cl_proposition_or_op)) {
 
 		/* retain the arguments */
 		cl_object_retain((cl_object *) res->_context.argv[0]);
 		cl_object_retain((cl_object *) res->_context.argv[1]);
 
-		res->_depth = ((cl_proposition *)res->_context.argv[0])->_depth + 1;
-		size_t depth2 = ((cl_proposition *)res->_context.argv[1])->_depth + 1;
+		res->_depth =
+		    ((cl_proposition *) res->_context.argv[0])->_depth + 1;
+		size_t depth2 =
+		    ((cl_proposition *) res->_context.argv[1])->_depth + 1;
 
 		/* swap the arguments if the second one is with smaller depth 
 		 * this might increase evaluation performance in cases where the
@@ -84,13 +88,14 @@ cl_proposition *cl_proposition_init(cl_proposition_operator op, ...)
 		}
 	} else if (op == &cl_proposition_not_op) {
 		cl_object_retain((cl_object *) res->_context.argv[0]);
-		res->_depth = ((cl_proposition *)res->_context.argv[0])->_depth + 1;
+		res->_depth =
+		    ((cl_proposition *) res->_context.argv[0])->_depth + 1;
 	}
-	
+
 	return res;
 }
 
-cl_proposition_context *cl_proposition_get_context(cl_proposition *p)
+cl_proposition_context *cl_proposition_get_context(cl_proposition * p)
 {
 	if (!p) {
 		return NULL;
@@ -99,7 +104,7 @@ cl_proposition_context *cl_proposition_get_context(cl_proposition *p)
 	return &(p->_context);
 }
 
-bool cl_proposition_eval(cl_proposition *p)
+bool cl_proposition_eval(cl_proposition * p)
 {
 	if (!p) {
 		return false;
@@ -109,17 +114,17 @@ bool cl_proposition_eval(cl_proposition *p)
 }
 
 /* TODO */
-bool cl_proposition_not_op(cl_proposition *self)
+bool cl_proposition_not_op(cl_proposition * self)
 {
 	return true;
 }
 
-bool cl_proposition_and_op(cl_proposition *self)
+bool cl_proposition_and_op(cl_proposition * self)
 {
 	return true;
 }
 
-bool cl_proposition_or_op(cl_proposition *self)
+bool cl_proposition_or_op(cl_proposition * self)
 {
 	return true;
 }

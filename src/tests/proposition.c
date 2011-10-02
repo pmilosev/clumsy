@@ -24,7 +24,7 @@
 static bool is_grater_than(cl_proposition * proposition)
 {
 	fail_if(proposition == NULL);
-	cl_proposition_context *ctx= cl_proposition_get_context(proposition);
+	cl_proposition_context *ctx = cl_proposition_get_context(proposition);
 
 	int *data = (int *)(ctx->argv[0]);
 	return data[0] > data[1];

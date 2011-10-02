@@ -22,4 +22,4 @@
 #include "cl_proposition.h"
 #include "cl_object.h"
 
-#endif /* CLUMSY_H */
+#endif				/* CLUMSY_H */

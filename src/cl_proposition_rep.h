@@ -28,4 +28,4 @@ struct cl_proposition_s {
 	cl_proposition_context _context;
 };
 
-#endif /* CL_PROPOSITION_REP_H */
+#endif				/* CL_PROPOSITION_REP_H */

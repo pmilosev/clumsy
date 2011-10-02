@@ -30,4 +30,4 @@ struct cl_object_s {
 	cl_object_info _obj_info;
 };
 
-#endif /* CL_OBJECT_REP_H */
+#endif				/* CL_OBJECT_REP_H */
