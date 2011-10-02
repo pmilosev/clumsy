@@ -16,10 +16,16 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLUMSY_H
-#define CLUMSY_H
+#ifndef CL_PROPOSITION_REP_H
+#define CL_PROPOSITION_REP_H
 
 #include "cl_proposition.h"
-#include "cl_object.h"
+#include "cl_object_rep.h"
 
-#endif /* CLUMSY_H */
+struct cl_proposition_s {
+	cl_object_info _obj_info;
+	size_t _depth;
+	cl_proposition_context _context;
+};
+
+#endif /* CL_PROPOSITION_REP_H */

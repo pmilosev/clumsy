@@ -19,35 +19,35 @@
 #include <check.h>
 #include <stdlib.h>
 #include "../clumsy.h"
+#include "../cl_proposition_rep.h"
 
-bool is_grater_than(cl_proposition * proposition)
+static bool is_grater_than(cl_proposition * proposition)
 {
-	fail_unless(proposition);
-	fail_unless(proposition->func == &is_grater_than);
-	fail_unless(proposition->data);
+	fail_if(proposition == NULL);
+	cl_proposition_context *ctx= cl_proposition_get_context(proposition);
 
-	int *data = (int *)proposition->data;
+	int *data = (int *)(ctx->argv[0]);
 	return data[0] > data[1];
 }
 
-START_TEST(test_simple_proposition)
+START_TEST(test_atomic_proposition)
 {
 	/* constant FALSE proposition */
-	cl_proposition *p1 = cl_proposition_new(NULL, NULL);
-	fail_unless(p1);
-	fail_if(cl_proposition_eval(p1));
-	cl_proposition_destroy(p1);
+	cl_proposition *p = cl_proposition_new(NULL, NULL);
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+	cl_object_release((cl_object *) p);
 
 	/* FALSE proposition */
 	int data[2] = { 1, 2 };
-	p1 = cl_proposition_new(&is_grater_than, data);
-	fail_unless(p1);
-	fail_if(cl_proposition_eval(p1));
+	p = cl_proposition_new(&is_grater_than, &data);
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
 
 	/* TRUE for the current state / interpretation */
 	data[0] = 3;
-	fail_unless(cl_proposition_eval(p1));
-	cl_proposition_destroy(p1);
+	fail_unless(cl_proposition_eval(p));
+	cl_object_release((cl_object *) p);
 }
 
 END_TEST;
@@ -56,8 +56,8 @@ Suite *test_suite(void)
 {
 	Suite *s = suite_create("TEST PROPOSITIONS");
 
-	TCase *tc_core = tcase_create("TEST_SIMPLE_PROPOSITION");
-	tcase_add_test(tc_core, test_simple_proposition);
+	TCase *tc_core = tcase_create("TEST_PROPOSITION");
+	tcase_add_test(tc_core, test_atomic_proposition);
 	suite_add_tcase(s, tc_core);
 
 	return s;

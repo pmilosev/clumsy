@@ -19,6 +19,9 @@
 #ifndef CL_OBJECT_H
 #define CL_OBJECT_H
 
+/** Struct containing object's metadata */
+typedef struct cl_object_info_s cl_object_info;
+
 /** Abstract object type. */
 typedef struct cl_object_s cl_object;
 

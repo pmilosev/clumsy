@@ -20,16 +20,22 @@ AM_CFLAGS = --pedantic --std=c99
 
 # DEFINE THE MAIN GOAL
 lib_LTLIBRARIES = libclumsy.la
-libclumsy_la_SOURCES = src/cl_proposition.c
+libclumsy_la_SOURCES = src/cl_proposition.c \
+					   src/cl_object.c
 libclumsy_la_HEADERS = src/clumsy.h
 libclumsy_ladir = .
 
 # SETUP THE UNIT TESTS
-check_PROGRAMS = src/tests/proposition.test
+check_PROGRAMS = src/tests/proposition.test \
+				 src/tests/object.test
 
 src_tests_proposition_test_SOURCES = src/tests/proposition.c
 src_tests_proposition_test_CFLAGS = @CHECK_CFLAGS@
 src_tests_proposition_test_LDADD = libclumsy.la @CHECK_LIBS@
+
+src_tests_object_test_SOURCES = src/tests/object.c
+src_tests_object_test_CFLAGS = @CHECK_CFLAGS@
+src_tests_object_test_LDADD = libclumsy.la @CHECK_LIBS@
 
 # skip unit tests if check is not installed
 if SKIP_CHECK

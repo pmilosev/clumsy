@@ -20,15 +20,11 @@
 #include <stdlib.h>
 #include <signal.h>
 #include "../clumsy.h"
+#include "../cl_object_rep.h"
 
-struct test_object {
-	size_t _ref;
-	cl_object_destructor _dest;
-};
-
-bool destructor_called = false;
-cl_object *tested_object = NULL;
-void destructor(cl_object * obj)
+static bool destructor_called = false;
+static cl_object *tested_object = NULL;
+static void destructor(cl_object * obj)
 {
 	fail_unless(obj == tested_object);
 	destructor_called = true;
@@ -44,27 +40,26 @@ END_TEST;
 START_TEST(test_object_management)
 {
 	/* test object initialization */
-	cl_object *obj = cl_object_init(sizeof(struct test_object), NULL);
-	struct test_object *casted_ref = (struct test_object *)obj;
-	fail_unless(casted_ref->_ref == 0);
-	fail_unless(casted_ref->_dest == NULL);
+	cl_object *obj = cl_object_init(sizeof(cl_object), NULL);
+	fail_unless(obj->_obj_info._ref == 0);
+	fail_unless(obj->_obj_info._dest == NULL);
 
 	/* test object retain */
 	fail_unless(cl_object_retain(obj) == obj);
 	cl_object_retain(obj);
-	fail_unless(casted_ref->_ref == 2);
+	fail_unless(obj->_obj_info._ref == 2);
 
 	/* test regular object release */
 	fail_unless(cl_object_release(obj) == obj);
-	fail_unless(casted_ref->_ref == 1);
+	fail_unless(obj->_obj_info._ref == 1);
 	fail_unless(cl_object_release(obj) == NULL);
 
 	/* test non-retained object release */
-	obj = cl_object_init(sizeof(struct test_object), NULL);
+	obj = cl_object_init(sizeof(cl_object), NULL);
 	fail_unless(cl_object_release(obj) == NULL);
 
 	/* test object destruction */
-	obj = cl_object_init(sizeof(struct test_object), &destructor);
+	obj = cl_object_init(sizeof(cl_object), &destructor);
 	tested_object = obj;
 	destructor_called = false;
 	fail_unless(cl_object_release(obj) == NULL);
