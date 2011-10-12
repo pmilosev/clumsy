@@ -30,3 +30,4 @@ config.sub
 ltmain.sh
 libtool
 *~
+*.swp
