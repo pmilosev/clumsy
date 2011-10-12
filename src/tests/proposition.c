@@ -32,19 +32,33 @@ static bool is_grater_than(cl_proposition * proposition)
 
 START_TEST(test_atomic_proposition)
 {
+	/* try evaluating NULL proposition */
+	fail_if(cl_proposition_eval(NULL));
+
 	/* constant FALSE proposition */
 	cl_proposition *p = cl_proposition_new(NULL, NULL);
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
 	cl_proposition_release(p);
 
-	/* FALSE proposition */
+	/* Create a proposition */
 	int data[2] = { 1, 2 };
 	p = cl_proposition_new(&is_grater_than, &data);
 	fail_if(p == NULL);
+
+	/* Check the context */
+	cl_proposition_context *ctx = cl_proposition_get_context(NULL);
+	fail_unless(ctx == NULL);
+	ctx = cl_proposition_get_context(p);
+	fail_if(ctx == NULL);
+	fail_unless(ctx->op == &is_grater_than);
+	fail_unless(ctx->argv[0] == &data);
+	fail_unless(ctx->argv[1] == NULL);
+
+	/* FALSE for current state */
 	fail_if(cl_proposition_eval(p));
 
-	/* TRUE for the current state / interpretation */
+	/* TRUE in the next state */
 	data[0] = 3;
 	fail_unless(cl_proposition_eval(p));
 	cl_proposition_release(p);

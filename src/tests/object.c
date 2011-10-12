@@ -45,6 +45,7 @@ START_TEST(test_object_management)
 	fail_unless(obj->_obj_info._dest == NULL);
 
 	/* test object retain */
+	fail_unless(cl_object_retain(NULL) == NULL);
 	fail_unless(cl_object_retain(obj) == obj);
 	cl_object_retain(obj);
 	fail_unless(obj->_obj_info._ref == 2);
