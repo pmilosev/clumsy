@@ -38,9 +38,9 @@ struct cl_proposition_context_s {
 /** Initializes a new proposition. 
  * A proposition can be any atomic proposition, or complex propositional formula.
  * @param op The operator of the proposition.<BR>
- * In a case of an atomic formula this can be any function of the type @ref cl_proposition_operator.
- * @param ... One or more pointers, pointing to the context of the proposition.<BR>
- * In a case of an atomic proposition only one pointer representing the complete context is expected.<BR>
+ * In a case of an atomic proposition this can be any function of the type @ref cl_proposition_operator.
+ * @param ... One or more pointers to variables on which the operator works on.<BR>
+ * In a case of an atomic proposition only one pointer is expected. If the proposition does not need any input you can provide NULL as argument.<BR>
  * In a case of a formula, the number of arguments depends on the operator.
  * @return The new proposition. */
 cl_proposition *cl_proposition_init(cl_proposition_operator op, ...);
