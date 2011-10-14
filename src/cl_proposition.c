@@ -37,6 +37,34 @@ cl_proposition *cl_proposition_init(cl_proposition_operator op, ...)
 {
 	va_list ap;
 	size_t argc = 1;
+	bool formula = true;
+
+	/* find the right number of arguments we are expecting */
+	if (op == cl_proposition_true_op) {
+		argc = 0;
+	} else if (op == cl_proposition_false_op) {
+		argc = 0;
+	} else if (op == cl_proposition_not_op) {
+		argc = 1;
+	} else if (op == cl_proposition_and_op) {
+		argc = 2;
+	} else if (op == cl_proposition_or_op) {
+		argc = 2;
+	} else if (op == cl_proposition_imply_op) {
+		argc = 2;
+	} else if (op == cl_proposition_equivalent_op) {
+		argc = 2;
+	} else if (op == cl_proposition_xor_op) {
+		argc = 2;
+	} else if (op == cl_proposition_nand_op) {
+		argc = 2;
+	} else if (op == cl_proposition_nor_op) {
+		argc = 2;
+	} else if (op == cl_proposition_nimply_op) {
+		argc = 2;
+	} else {
+		formula = false;
+	}
 
 	/* initialize the object */
 	cl_proposition *res =
@@ -46,50 +74,39 @@ cl_proposition *cl_proposition_init(cl_proposition_operator op, ...)
 	/* set the operator (NULL will evaluate to FALSE) */
 	res->_context.op = op;
 
-	/* expecting 2 arguments for OR and AND, 1 argument for everything else */
-	if ((op == &cl_proposition_and_op)
-	    || (op == &cl_proposition_or_op)) {
-		argc = 2;
-	}
-
 	/* load the arguments */
 	va_start(ap, op);
 	res->_context.argv[0] = argc > 0 ? va_arg(ap, void *) : NULL;
 	res->_context.argv[1] = argc > 1 ? va_arg(ap, void *) : NULL;
 	va_end(ap);
 
-	/* if this is a brand new proposition set the depth to 0 */
-	res->_depth = 0;
+	/* if atomic proposition, set the depth  to 0 and return  */
+	if (!formula) {
+		res->_depth = 0;
+		return res;
+	}
 
-	/* in a case of binary operator */
-	if ((op == &cl_proposition_and_op)
-	    || (op == &cl_proposition_or_op)) {
+	/* retain the arguments */
+	cl_proposition_retain(res->_context.argv[0]);
+	cl_proposition_retain(res->_context.argv[1]);
 
-		/* retain the arguments */
-		cl_object_retain((cl_object *) res->_context.argv[0]);
-		cl_object_retain((cl_object *) res->_context.argv[1]);
+	/* in a case of a forumla the depth should be set pesimistic */
+	size_t depth0 = res->_context.argv[0] ? ((cl_proposition *) res->_context.argv[0])->_depth + 1 : 0;
+	size_t depth1 = res->_context.argv[1] ? ((cl_proposition *) res->_context.argv[1])->_depth + 1 : 0;
+	res->_depth = depth0 > depth1 ? depth0 : depth1;
 
-		res->_depth =
-		    ((cl_proposition *) res->_context.argv[0])->_depth + 1;
-		size_t depth2 =
-		    ((cl_proposition *) res->_context.argv[1])->_depth + 1;
-
-		/* swap the arguments if the second one is with smaller depth 
-		 * this might increase evaluation performance in cases where the
-		 * result from the first argument defines the final result 
-		 * (eg. TRUE || arg2) */
-		if (res->_depth > depth2) {
+	/* finally, if the operator is comutative
+	 * set the operand with smaller depth first 
+	 * in a hope that it would be sufficient for the final result */
+	if (op == cl_proposition_and_op
+			|| op == cl_proposition_or_op
+			|| op == cl_proposition_nand_op
+			|| op == cl_proposition_nor_op) {
+		if (depth0 > depth1) {
 			void *temp = res->_context.argv[0];
 			res->_context.argv[0] = res->_context.argv[1];
 			res->_context.argv[1] = temp;
-		} else {
-			/* depth always represents the worst-case scenario */
-			res->_depth = depth2;
 		}
-	} else if (op == &cl_proposition_not_op) {
-		cl_object_retain((cl_object *) res->_context.argv[0]);
-		res->_depth =
-		    ((cl_proposition *) res->_context.argv[0])->_depth + 1;
 	}
 
 	return res;
@@ -113,6 +130,16 @@ bool cl_proposition_eval(cl_proposition * p)
 	return p->_context.op ? p->_context.op(p) : false;
 }
 
+bool cl_proposition_true_op(cl_proposition * self)
+{
+	return true;
+}
+
+bool cl_proposition_false_op(cl_proposition * self)
+{
+	return false;
+}
+
 bool cl_proposition_not_op(cl_proposition * self)
 {
 	return !cl_proposition_eval(self->_context.argv[0]);
@@ -132,4 +159,52 @@ bool cl_proposition_or_op(cl_proposition * self)
 	bool r2 = cl_proposition_eval(self->_context.argv[1]);
 
 	return r1 || r2;
+}
+
+bool cl_proposition_imply_op(cl_proposition * self)
+{
+	bool r1 = cl_proposition_eval(self->_context.argv[0]);
+	bool r2 = cl_proposition_eval(self->_context.argv[1]);
+
+	return !r1 || r2;
+}
+
+bool cl_proposition_equivalent_op(cl_proposition * self)
+{
+	bool r1 = cl_proposition_eval(self->_context.argv[0]);
+	bool r2 = cl_proposition_eval(self->_context.argv[1]);
+
+	return r1 == r2;
+}
+
+bool cl_proposition_xor_op(cl_proposition * self)
+{
+	bool r1 = cl_proposition_eval(self->_context.argv[0]);
+	bool r2 = cl_proposition_eval(self->_context.argv[1]);
+
+	return r1 != r2;
+}
+
+bool cl_proposition_nand_op(cl_proposition * self)
+{
+	bool r1 = cl_proposition_eval(self->_context.argv[0]);
+	bool r2 = cl_proposition_eval(self->_context.argv[1]);
+
+	return !(r1 && r2);
+}
+
+bool cl_proposition_nor_op(cl_proposition * self)
+{
+	bool r1 = cl_proposition_eval(self->_context.argv[0]);
+	bool r2 = cl_proposition_eval(self->_context.argv[1]);
+
+	return !(r1 || r2);
+}
+
+bool cl_proposition_nimply_op(cl_proposition * self)
+{
+	bool r1 = cl_proposition_eval(self->_context.argv[0]);
+	bool r2 = cl_proposition_eval(self->_context.argv[1]);
+
+	return r1 && !r2;
 }

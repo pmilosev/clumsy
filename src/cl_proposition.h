@@ -39,7 +39,7 @@ struct cl_proposition_context_s {
  * A proposition can be any atomic proposition, or complex propositional formula.
  * @param op The operator of the proposition.<BR>
  * In a case of an atomic proposition this can be any function of the type @ref cl_proposition_operator.
- * @param ... One or more pointers to variables on which the operator works on.<BR>
+ * @param ... List of pointers to data on which the operator works on.<BR>
  * In a case of an atomic proposition only one pointer is expected. If the proposition does not need any input you can provide NULL as argument.<BR>
  * In a case of a formula, the number of arguments depends on the operator.
  * @return The new proposition. */
@@ -51,32 +51,61 @@ cl_proposition_context *cl_proposition_get_context(cl_proposition * p);
 /** Evaluates the proposition. */
 bool cl_proposition_eval(cl_proposition * p);
 
+/** The CONSTANT TRUE operator - tautology. */
+bool cl_proposition_true_op(cl_proposition * self);
+/** The CONSTANT FALSE operator - contradiction. */
+bool cl_proposition_false_op(cl_proposition * self);
 /** The NOT operator. */
 bool cl_proposition_not_op(cl_proposition * self);
 /** The AND operator. */
 bool cl_proposition_and_op(cl_proposition * self);
 /** The OR operator. */
 bool cl_proposition_or_op(cl_proposition * self);
+/** The IMPLY operator. */
+bool cl_proposition_imply_op(cl_proposition * self);
+/** The EQUIVALENCY operator. */
+bool cl_proposition_equivalent_op(cl_proposition * self);
+/** The XOR operator. */
+bool cl_proposition_xor_op(cl_proposition * self);
+/** The NAND operator. */
+bool cl_proposition_nand_op(cl_proposition * self);
+/** The NOR operator. */
+bool cl_proposition_nor_op(cl_proposition * self);
+/** The NOT IMPLY operator. */
+bool cl_proposition_nimply_op(cl_proposition * self);
 
 /** Retains the proposition */
 #define cl_proposition_retain(p) ((cl_proposition *) cl_object_retain((cl_object *) p))
-
 /** Releases the proposition */
 #define cl_proposition_release(p) ((cl_proposition *) cl_object_release((cl_object *) p))
-
-/** Initializes a new proposition, negation of the provided one. */
-#define cl_proposition_not(p) cl_proposition_init(&cl_proposition_not_op, p)
-
-/** Initializes a new proposition, conjunction of the provided propositions. */
-#define cl_proposition_and(p1, p2) cl_proposition_init(&cl_proposition_and_op, p1, p2)
-
-/** Initializes a new proposition, disjunction of the provided propositions. */
-#define cl_proposition_or(p1, p2) cl_proposition_init(&cl_proposition_or_op, p1, p2)
-
-/** Initializes a new proposition, implicaton from p1 to p2. */
-#define cl_proposition_imply(p1, p2) cl_proposition_or(cl_proposition_not(p1), p2)
-
 /** Initializes and retains a new proposition */
 #define cl_proposition_new(op, ...) cl_proposition_retain(cl_proposition_init(op, __VA_ARGS__))
+
+/** Initializes a new proposition, tautology. The proposition should be retained manually.*/
+#define cl_proposition_true() cl_proposition_init(&cl_proposition_true_op)
+/** Initializes a new proposition, contradiction. The proposition should be retained manually.*/
+#define cl_proposition_false() cl_proposition_init(&cl_proposition_false_op)
+/** Initializes a new proposition, negation. The proposition should be retained manually.*/
+#define cl_proposition_not(p) cl_proposition_init(&cl_proposition_not_op, p)
+/** Initializes a new proposition, conjuction. The proposition should be retained manually.*/
+#define cl_proposition_and(p1, p2) cl_proposition_init(&cl_proposition_and_op, p1, p2)
+/** Initializes a new proposition, disjunction. The proposition should be retained manually.*/
+#define cl_proposition_or(p1, p2) cl_proposition_init(&cl_proposition_or_op, p1, p2)
+/** Initializes a new proposition, right implication. The proposition should be retained manually.*/
+#define cl_proposition_imply(p1, p2) cl_proposition_init(&cl_proposition_imply_op, p1, p2)
+/** Initializes a new proposition, left implication. The proposition should be retained manually.*/
+#define cl_proposition_implied(p1, p2) cl_proposition_init(&cl_proposition_imply_op, p2, p1)
+/** Initializes a new proposition, equivalency. The proposition should be retained manually.*/
+#define cl_proposition_equivalent(p1, p2) cl_proposition_init(&cl_proposition_equivalent_op, p2, p1)
+/** Initializes a new proposition, xor. The proposition should be retained manually.*/
+#define cl_proposition_xor(p1, p2) cl_proposition_init(&cl_proposition_xor_op, p1, p2)
+/** Initializes a new proposition, nand. The proposition should be retained manually.*/
+#define cl_proposition_nand(p1, p2) cl_proposition_init(&cl_proposition_nand_op, p1, p2)
+/** Initializes a new proposition, nor. The proposition should be retained manually.*/
+#define cl_proposition_nor(p1, p2) cl_proposition_init(&cl_proposition_nor_op, p1, p2)
+/** Initializes a new proposition, negated right implication. The proposition should be retained manually.*/
+#define cl_proposition_nimply(p1, p2) cl_proposition_init(&cl_proposition_nimply_op, p1, p2)
+/** Initializes a new proposition, negated left implication. The proposition should be retained manually.*/
+#define cl_proposition_nimplied(p1, p2) cl_proposition_init(&cl_proposition_nimply_op, p2, p1)
 
 #endif				/* CL_PROPOSITION_H */

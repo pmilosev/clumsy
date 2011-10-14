@@ -35,11 +35,29 @@ START_TEST(test_atomic_proposition)
 	/* try evaluating NULL proposition */
 	fail_if(cl_proposition_eval(NULL));
 
-	/* constant FALSE proposition */
-	cl_proposition *p = cl_proposition_new(NULL, NULL);
+	/* constant TRUE propositions */
+	cl_proposition *p = cl_proposition_retain(cl_proposition_true());
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* constant FALSE propositions */
+	p = cl_proposition_retain(cl_proposition_false());
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-	cl_proposition_release(p);
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* custom constant FALSE proposition */
+	p = cl_proposition_new(NULL, NULL);
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
 
 	/* Create a proposition */
 	int data[2] = { 1, 2 };
@@ -61,7 +79,8 @@ START_TEST(test_atomic_proposition)
 	/* TRUE in the next state */
 	data[0] = 3;
 	fail_unless(cl_proposition_eval(p));
-	cl_proposition_release(p);
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
 }
 
 END_TEST;
@@ -196,6 +215,256 @@ START_TEST(test_complex_proposition)
 	p = cl_proposition_retain(cl_proposition_imply(pfalse, pfalse));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true impled by true */
+	p = cl_proposition_retain(cl_proposition_implied
+				  (cl_proposition_not(pfalse),
+				   cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true impled by false */
+	p = cl_proposition_retain(cl_proposition_implied
+				  (cl_proposition_not(pfalse), pfalse));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false impled by true */
+	p = cl_proposition_retain(cl_proposition_implied
+				  (pfalse, cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false impled by false */
+	p = cl_proposition_retain(cl_proposition_implied(pfalse, pfalse));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true equivalent to true */
+	p = cl_proposition_retain(cl_proposition_equivalent
+			(cl_proposition_not(pfalse), cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true equivalent to false */
+	p = cl_proposition_retain(cl_proposition_equivalent
+			(cl_proposition_not(pfalse), pfalse));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false equivalent to true */
+	p = cl_proposition_retain(cl_proposition_equivalent
+			(pfalse, cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false equivalent to false */
+	p = cl_proposition_retain(cl_proposition_equivalent(pfalse, pfalse));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true xor true */
+	p = cl_proposition_retain(cl_proposition_xor
+			(cl_proposition_not(pfalse), cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true xor flase */
+	p = cl_proposition_retain(cl_proposition_xor
+			(cl_proposition_not(pfalse), pfalse));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false xor true */
+	p = cl_proposition_retain(cl_proposition_xor
+			(pfalse, cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false xor flase */
+	p = cl_proposition_retain(cl_proposition_xor(pfalse, pfalse));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true nand true */
+	p = cl_proposition_retain(cl_proposition_nand
+				  (cl_proposition_not(pfalse),
+				   cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true nand false */
+	p = cl_proposition_retain(cl_proposition_nand
+				  (cl_proposition_not(pfalse), pfalse));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false nand true */
+	p = cl_proposition_retain(cl_proposition_nand
+				  (pfalse, cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false nand false */
+	p = cl_proposition_retain(cl_proposition_nand(pfalse, pfalse));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true nor true */
+	p = cl_proposition_retain(cl_proposition_nor
+				  (cl_proposition_not(pfalse),
+				   cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true nor false */
+	p = cl_proposition_retain(cl_proposition_nor
+				  (cl_proposition_not(pfalse), pfalse));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false nor true */
+	p = cl_proposition_retain(cl_proposition_nor
+				  (pfalse, cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false nor false */
+	p = cl_proposition_retain(cl_proposition_nor(pfalse, pfalse));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true not imply true */
+	p = cl_proposition_retain(cl_proposition_nimply
+				  (cl_proposition_not(pfalse),
+				   cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true not imply false */
+	p = cl_proposition_retain(cl_proposition_nimply
+				  (cl_proposition_not(pfalse), pfalse));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false not imply true */
+	p = cl_proposition_retain(cl_proposition_nimply
+				  (pfalse, cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false not imply false */
+	p = cl_proposition_retain(cl_proposition_nimply(pfalse, pfalse));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true not impled by true */
+	p = cl_proposition_retain(cl_proposition_nimplied
+				  (cl_proposition_not(pfalse),
+				   cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* true not impled by false */
+	p = cl_proposition_retain(cl_proposition_nimplied
+				  (cl_proposition_not(pfalse), pfalse));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false not impled by true */
+	p = cl_proposition_retain(cl_proposition_nimplied
+				  (pfalse, cl_proposition_not(pfalse)));
+	fail_if(p == NULL);
+	fail_unless(cl_proposition_eval(p));
+
+	p = cl_proposition_release(p);
+	fail_unless(p == NULL);
+
+	/* false not impled by false */
+	p = cl_proposition_retain(cl_proposition_nimplied(pfalse, pfalse));
+	fail_if(p == NULL);
+	fail_if(cl_proposition_eval(p));
 
 	p = cl_proposition_release(p);
 	fail_unless(p == NULL);
