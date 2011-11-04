@@ -18,18 +18,18 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include "cl_object.h"
 #include "cl_proposition.h"
 #include "cl_proposition_rep.h"
 
 static void destructor(cl_object * obj)
 {
+	assert(cl_object_type_check(obj, CL_OBJECT_TYPE_PROPOSITION));
 	cl_proposition *p = (cl_proposition *) obj;
 
 	/** the context of the atomic propositions is managed outside of the proposition. */
 	if (p->_depth) {
-		cl_object_release((cl_object *) p->_context.argv[0]);
-		cl_object_release((cl_object *) p->_context.argv[1]);
+		cl_object_release(p->_context.argv[0]);
+		cl_object_release(p->_context.argv[1]);
 	}
 }
 
@@ -67,11 +67,11 @@ cl_proposition *cl_proposition_init(cl_proposition_operator op, ...)
 	}
 
 	/* initialize the object */
-	cl_proposition *res =
-	    (cl_proposition *) cl_object_init(sizeof(cl_proposition),
-					      &destructor);
+	cl_object *obj = cl_object_init(sizeof(cl_proposition), &destructor);
+	obj->_obj_info._type |= CL_OBJECT_TYPE_PROPOSITION;
 
 	/* set the operator (NULL will evaluate to FALSE) */
+	cl_proposition *res = (cl_proposition *) obj;
 	res->_context.op = op;
 
 	/* load the arguments */
@@ -87,8 +87,8 @@ cl_proposition *cl_proposition_init(cl_proposition_operator op, ...)
 	}
 
 	/* retain the arguments */
-	cl_proposition_retain(res->_context.argv[0]);
-	cl_proposition_retain(res->_context.argv[1]);
+	cl_object_retain(res->_context.argv[0]);
+	cl_object_retain(res->_context.argv[1]);
 
 	/* in a case of a forumla the depth should be set pesimistic */
 	size_t depth0 = res->_context.argv[0] ? ((cl_proposition *) res->_context.argv[0])->_depth + 1 : 0;
@@ -118,6 +118,7 @@ cl_proposition_context *cl_proposition_get_context(cl_proposition * p)
 		return NULL;
 	}
 
+	assert(cl_object_type_check(p, CL_OBJECT_TYPE_PROPOSITION));
 	return &(p->_context);
 }
 
@@ -127,6 +128,7 @@ bool cl_proposition_eval(cl_proposition * p)
 		return false;
 	}
 
+	assert(cl_object_type_check(p, CL_OBJECT_TYPE_PROPOSITION));
 	return p->_context.op ? p->_context.op(p) : false;
 }
 
@@ -142,11 +144,13 @@ bool cl_proposition_false_op(cl_proposition * self)
 
 bool cl_proposition_not_op(cl_proposition * self)
 {
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	return !cl_proposition_eval(self->_context.argv[0]);
 }
 
 bool cl_proposition_and_op(cl_proposition * self)
 {
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
 	bool r2 = cl_proposition_eval(self->_context.argv[1]);
 
@@ -155,6 +159,7 @@ bool cl_proposition_and_op(cl_proposition * self)
 
 bool cl_proposition_or_op(cl_proposition * self)
 {
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
 	bool r2 = cl_proposition_eval(self->_context.argv[1]);
 
@@ -171,6 +176,7 @@ bool cl_proposition_imply_op(cl_proposition * self)
 
 bool cl_proposition_equivalent_op(cl_proposition * self)
 {
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
 	bool r2 = cl_proposition_eval(self->_context.argv[1]);
 
@@ -179,6 +185,7 @@ bool cl_proposition_equivalent_op(cl_proposition * self)
 
 bool cl_proposition_xor_op(cl_proposition * self)
 {
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
 	bool r2 = cl_proposition_eval(self->_context.argv[1]);
 
@@ -187,6 +194,7 @@ bool cl_proposition_xor_op(cl_proposition * self)
 
 bool cl_proposition_nand_op(cl_proposition * self)
 {
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
 	bool r2 = cl_proposition_eval(self->_context.argv[1]);
 
@@ -195,6 +203,7 @@ bool cl_proposition_nand_op(cl_proposition * self)
 
 bool cl_proposition_nor_op(cl_proposition * self)
 {
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
 	bool r2 = cl_proposition_eval(self->_context.argv[1]);
 
@@ -203,6 +212,7 @@ bool cl_proposition_nor_op(cl_proposition * self)
 
 bool cl_proposition_nimply_op(cl_proposition * self)
 {
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
 	bool r2 = cl_proposition_eval(self->_context.argv[1]);
 

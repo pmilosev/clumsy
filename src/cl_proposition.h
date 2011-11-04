@@ -19,8 +19,11 @@
 #ifndef CL_PROPOSITION_H
 #define CL_PROPOSITION_H
 
-#include <stdbool.h>
+#include "cl_object.h"
 #include <stdarg.h>
+
+/** Proposition object type. Sets the second bit of the type flag. */
+#define CL_OBJECT_TYPE_PROPOSITION 0x02L
 
 /** Object type representing logical propositions. */
 typedef struct cl_proposition_s cl_proposition;
@@ -74,12 +77,8 @@ bool cl_proposition_nor_op(cl_proposition * self);
 /** The NOT IMPLY operator. */
 bool cl_proposition_nimply_op(cl_proposition * self);
 
-/** Retains the proposition */
-#define cl_proposition_retain(p) ((cl_proposition *) cl_object_retain((cl_object *) p))
-/** Releases the proposition */
-#define cl_proposition_release(p) ((cl_proposition *) cl_object_release((cl_object *) p))
 /** Initializes and retains a new proposition */
-#define cl_proposition_new(op, ...) cl_proposition_retain(cl_proposition_init(op, __VA_ARGS__))
+#define cl_proposition_new(op, ...) cl_object_retain(cl_proposition_init(op, __VA_ARGS__))
 
 /** Initializes a new proposition, tautology. The proposition should be retained manually.*/
 #define cl_proposition_true() cl_proposition_init(&cl_proposition_true_op)

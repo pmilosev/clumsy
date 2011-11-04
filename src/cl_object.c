@@ -29,41 +29,56 @@ cl_object *cl_object_init(size_t size, cl_object_destructor dest)
 	cl_object *res = malloc(size);
 	assert(res);
 
+	res->_obj_info._type = CL_OBJECT_TYPE_OBJECT;
 	res->_obj_info._ref = 0;
 	res->_obj_info._dest = dest;
 
 	return res;
 }
 
-cl_object *cl_object_retain(cl_object * object)
+bool cl_object_type_check(void * object, size_t typeMask)
+{
+	if(!object) {
+		return false;
+	}
+
+	size_t type = ((cl_object *) object)->_obj_info._type;
+	return (type & CL_OBJECT_TYPE_OBJECT) && (type & typeMask);
+}
+
+void *cl_object_retain(void * object)
 {
 	if (!object) {
 		return NULL;
 	}
 
-	object->_obj_info._ref += 1;
+	assert(cl_object_type_check(object, CL_OBJECT_TYPE_OBJECT));
+	((cl_object *)object)->_obj_info._ref += 1;
 	return object;
 }
 
-cl_object *cl_object_release(cl_object * object)
+void *cl_object_release(void * object)
 {
 	if (!object) {
 		return NULL;
 	}
 
+	assert(cl_object_type_check(object, CL_OBJECT_TYPE_OBJECT));
+	cl_object * obj = (cl_object *) object;
+
 	/* if the reference is already 0 don't decrease it */
-	object->_obj_info._ref -= object->_obj_info._ref ? 1 : 0;
+	obj->_obj_info._ref -= obj->_obj_info._ref ? 1 : 0;
 
 	/* if the reference count is above 0 do nothing */
-	if (object->_obj_info._ref) {
+	if (obj->_obj_info._ref) {
 		return object;
 	}
 
 	/* otherwise deallocate the object */
-	if (object->_obj_info._dest) {
-		object->_obj_info._dest(object);
+	if (obj->_obj_info._dest) {
+		obj->_obj_info._dest(object);
 	}
 
-	free(object);
+	free(obj);
 	return NULL;
 }

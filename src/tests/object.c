@@ -44,6 +44,13 @@ START_TEST(test_object_management)
 	fail_unless(obj->_obj_info._ref == 0);
 	fail_unless(obj->_obj_info._dest == NULL);
 
+	/* test object type check */
+	fail_if(cl_object_type_check(NULL, CL_OBJECT_TYPE_OBJECT));
+	obj->_obj_info._type ^= CL_OBJECT_TYPE_OBJECT; 
+	fail_if(cl_object_type_check(obj, CL_OBJECT_TYPE_OBJECT));
+	obj->_obj_info._type ^= CL_OBJECT_TYPE_OBJECT; 
+	fail_unless(cl_object_type_check(obj, CL_OBJECT_TYPE_OBJECT));
+
 	/* test object retain */
 	fail_unless(cl_object_retain(NULL) == NULL);
 	fail_unless(cl_object_retain(obj) == obj);
