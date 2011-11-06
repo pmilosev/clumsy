@@ -22,7 +22,7 @@
 #include <stdbool.h>
 
 /** Object type flag for the top most object. */
-#define CL_OBJECT_TYPE_OBJECT 0x01L
+#define CL_OBJECT_TYPE_OBJECT 0x01
 
 /** Struct containing object's metadata */
 typedef struct cl_object_info_s cl_object_info;
