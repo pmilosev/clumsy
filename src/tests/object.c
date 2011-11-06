@@ -22,6 +22,8 @@
 #include "../clumsy.h"
 #include "../cl_object_rep.h"
 
+#define CL_OBJECT_TYPE_OBJECT 0x0
+
 static bool destructor_called = false;
 static cl_object *tested_object = NULL;
 static void destructor(cl_object * obj)
@@ -47,9 +49,9 @@ START_TEST(test_object_management)
 
 	/* test object type check */
 	fail_if(cl_object_type_check(NULL, CL_OBJECT_TYPE_OBJECT));
-	obj->_obj_info._type ^= CL_OBJECT_TYPE_OBJECT;
+	obj->_obj_info._MAGIC ^= 0x01L;
 	fail_if(cl_object_type_check(obj, CL_OBJECT_TYPE_OBJECT));
-	obj->_obj_info._type ^= CL_OBJECT_TYPE_OBJECT;
+	obj->_obj_info._MAGIC ^= 0x01L;
 	fail_unless(cl_object_type_check(obj, CL_OBJECT_TYPE_OBJECT));
 
 	/* test object retain */

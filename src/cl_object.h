@@ -26,9 +26,6 @@
 /** Flags data type for object type flags. */
 typedef uint8_t cl_object_type;
 
-/** Object type flag for the top most object. */
-#define CL_OBJECT_TYPE_OBJECT 0x01
-
 /** Struct containing object's metadata */
 typedef struct cl_object_info_s cl_object_info;
 

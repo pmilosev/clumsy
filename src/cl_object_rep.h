@@ -22,8 +22,10 @@
 #include "cl_object.h"
 
 struct cl_object_info_s {
-	size_t _ref;
+	size_t _MAGIC;
 	cl_object_type _type;
+
+	size_t _ref;
 	cl_object_destructor _dest;
 };
 

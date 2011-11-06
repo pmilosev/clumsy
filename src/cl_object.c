@@ -20,6 +20,9 @@
 #include "cl_object.h"
 #include "cl_object_rep.h"
 
+#define CL_OBJECT_TYPE_OBJECT 0x0
+static const size_t MAGIC = 0x0b7ecdL;
+
 void *cl_object_init(size_t size, cl_object_type type,
 		     cl_object_destructor dest)
 {
@@ -29,7 +32,8 @@ void *cl_object_init(size_t size, cl_object_type type,
 	cl_object *res = malloc(size);
 	assert(res);
 
-	res->_obj_info._type = CL_OBJECT_TYPE_OBJECT | type;
+	res->_obj_info._MAGIC = MAGIC;
+	res->_obj_info._type = type;
 	res->_obj_info._ref = 0;
 	res->_obj_info._dest = dest;
 
@@ -42,8 +46,9 @@ bool cl_object_type_check(void *object, cl_object_type typeMask)
 		return false;
 	}
 
-	size_t type = ((cl_object *) object)->_obj_info._type;
-	return (type & CL_OBJECT_TYPE_OBJECT) && (type & typeMask);
+	cl_object *obj = (cl_object *) object;
+	return (obj->_obj_info._MAGIC == MAGIC)
+	    && (typeMask ? obj->_obj_info._type & typeMask : true);
 }
 
 void *cl_object_retain(void *object)
