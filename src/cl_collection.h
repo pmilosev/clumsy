@@ -64,6 +64,19 @@ typedef struct cl_collection_s cl_collection;
 cl_collection *cl_collection_init(size_t nmemb, cl_object_type type,
 				  cl_collection_flags flags);
 
+/* TODO:
+ * cl_collection_add
+ * cl_collection_insert
+ * cl_collection_push
+ * cl_collection_pop
+ * cl_cllection_remove
+ *
+ * cl_collection_any
+ * cl_collection_find
+ * cl_collection_first
+ * cl_collection_last
+ * */
+
 /** Initializes and retains a new collection. */
 #define cl_collection_new(nmemb, size, flags) cl_object_retain(cl_collection_init(nmemb, size, flags))
 
