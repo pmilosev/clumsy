@@ -16,11 +16,12 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-AM_CFLAGS = --pedantic --std=c99
+AM_CFLAGS = --pedantic --std=c99 -Werror
 
 # DEFINE THE MAIN GOAL
 lib_LTLIBRARIES = libclumsy.la
-libclumsy_la_SOURCES = src/cl_proposition.c \
+libclumsy_la_SOURCES = src/cl_collection.c \
+					   src/cl_proposition.c \
 					   src/cl_object.c
 libclumsy_la_HEADERS = src/clumsy.h
 libclumsy_ladir = .

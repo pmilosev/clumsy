@@ -19,6 +19,7 @@
 #ifndef CL_OBJECT_H
 #define CL_OBJECT_H
 
+#include <stdlib.h>
 #include <stdbool.h>
 
 /** Object type flag for the top most object. */

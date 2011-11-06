@@ -16,7 +16,6 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdlib.h>
 #include <assert.h>
 #include "cl_object.h"
 #include "cl_object_rep.h"
