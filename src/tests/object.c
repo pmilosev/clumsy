@@ -32,7 +32,7 @@ static void destructor(cl_object * obj)
 
 START_TEST(test_object_assert_size)
 {
-	cl_object *obj = cl_object_init(0, NULL);
+	cl_object *obj = cl_object_init(0, CL_OBJECT_TYPE_OBJECT, NULL);
 }
 
 END_TEST;
@@ -40,15 +40,16 @@ END_TEST;
 START_TEST(test_object_management)
 {
 	/* test object initialization */
-	cl_object *obj = cl_object_init(sizeof(cl_object), NULL);
+	cl_object *obj =
+	    cl_object_init(sizeof(cl_object), CL_OBJECT_TYPE_OBJECT, NULL);
 	fail_unless(obj->_obj_info._ref == 0);
 	fail_unless(obj->_obj_info._dest == NULL);
 
 	/* test object type check */
 	fail_if(cl_object_type_check(NULL, CL_OBJECT_TYPE_OBJECT));
-	obj->_obj_info._type ^= CL_OBJECT_TYPE_OBJECT; 
+	obj->_obj_info._type ^= CL_OBJECT_TYPE_OBJECT;
 	fail_if(cl_object_type_check(obj, CL_OBJECT_TYPE_OBJECT));
-	obj->_obj_info._type ^= CL_OBJECT_TYPE_OBJECT; 
+	obj->_obj_info._type ^= CL_OBJECT_TYPE_OBJECT;
 	fail_unless(cl_object_type_check(obj, CL_OBJECT_TYPE_OBJECT));
 
 	/* test object retain */
@@ -63,11 +64,13 @@ START_TEST(test_object_management)
 	fail_unless(cl_object_release(obj) == NULL);
 
 	/* test non-retained object release */
-	obj = cl_object_init(sizeof(cl_object), NULL);
+	obj = cl_object_init(sizeof(cl_object), CL_OBJECT_TYPE_OBJECT, NULL);
 	fail_unless(cl_object_release(obj) == NULL);
 
 	/* test object destruction */
-	obj = cl_object_init(sizeof(cl_object), &destructor);
+	obj =
+	    cl_object_init(sizeof(cl_object), CL_OBJECT_TYPE_OBJECT,
+			   &destructor);
 	tested_object = obj;
 	destructor_called = false;
 	fail_unless(cl_object_release(obj) == NULL);

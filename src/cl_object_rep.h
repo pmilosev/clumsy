@@ -19,12 +19,11 @@
 #ifndef CL_OBJECT_REP_H
 #define CL_OBJECT_REP_H
 
-#include <inttypes.h>
 #include "cl_object.h"
 
 struct cl_object_info_s {
-	uint8_t _type;
 	size_t _ref;
+	cl_object_type _type;
 	cl_object_destructor _dest;
 };
 

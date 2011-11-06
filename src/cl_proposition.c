@@ -21,7 +21,7 @@
 #include "cl_proposition.h"
 #include "cl_proposition_rep.h"
 
-static void destructor(void * obj)
+static void destructor(void *obj)
 {
 	assert(cl_object_type_check(obj, CL_OBJECT_TYPE_PROPOSITION));
 	cl_proposition *p = (cl_proposition *) obj;
@@ -67,11 +67,11 @@ cl_proposition *cl_proposition_init(cl_proposition_operator op, ...)
 	}
 
 	/* initialize the object */
-	cl_object *obj = cl_object_init(sizeof(cl_proposition), &destructor);
-	obj->_obj_info._type |= CL_OBJECT_TYPE_PROPOSITION;
+	cl_proposition *res =
+	    cl_object_init(sizeof(cl_proposition), CL_OBJECT_TYPE_PROPOSITION,
+			   &destructor);
 
 	/* set the operator (NULL will evaluate to FALSE) */
-	cl_proposition *res = (cl_proposition *) obj;
 	res->_context.op = op;
 
 	/* load the arguments */
@@ -91,17 +91,20 @@ cl_proposition *cl_proposition_init(cl_proposition_operator op, ...)
 	cl_object_retain(res->_context.argv[1]);
 
 	/* in a case of a forumla the depth should be set pesimistic */
-	size_t depth0 = res->_context.argv[0] ? ((cl_proposition *) res->_context.argv[0])->_depth + 1 : 0;
-	size_t depth1 = res->_context.argv[1] ? ((cl_proposition *) res->_context.argv[1])->_depth + 1 : 0;
+	size_t depth0 =
+	    res->_context.argv[0] ? ((cl_proposition *) res->_context.argv[0])->
+	    _depth + 1 : 0;
+	size_t depth1 =
+	    res->_context.argv[1] ? ((cl_proposition *) res->_context.argv[1])->
+	    _depth + 1 : 0;
 	res->_depth = depth0 > depth1 ? depth0 : depth1;
 
 	/* finally, if the operator is comutative
 	 * set the operand with smaller depth first 
 	 * in a hope that it would be sufficient for the final result */
 	if (op == cl_proposition_and_op
-			|| op == cl_proposition_or_op
-			|| op == cl_proposition_nand_op
-			|| op == cl_proposition_nor_op) {
+	    || op == cl_proposition_or_op
+	    || op == cl_proposition_nand_op || op == cl_proposition_nor_op) {
 		if (depth0 > depth1) {
 			void *temp = res->_context.argv[0];
 			res->_context.argv[0] = res->_context.argv[1];

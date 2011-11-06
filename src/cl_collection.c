@@ -28,7 +28,8 @@ static void destructor(void *obj)
 	/* TODO: release all objects and free the memory */
 }
 
-cl_collection *cl_collection_init(size_t nmemb, uint8_t type, uint8_t flags)
+cl_collection *cl_collection_init(size_t nmemb, cl_object_type type,
+				  cl_collection_flags flags)
 {
 	/* try if enough memory can be allocated */
 	nmemb = nmemb ? nmemb : CL_COLLECTION_DEFAULT_CHUNK;
@@ -36,11 +37,11 @@ cl_collection *cl_collection_init(size_t nmemb, uint8_t type, uint8_t flags)
 	assert(buff);
 
 	/* init the object */
-	cl_object *obj = cl_object_init(sizeof(cl_collection), &destructor);
-	obj->_obj_info._type |= CL_OBJECT_TYPE_COLLECTION;
+	cl_collection *res =
+	    cl_object_init(sizeof(cl_collection), CL_OBJECT_TYPE_COLLECTION,
+			   &destructor);
 
 	/* set the collection attributes */
-	cl_collection *res = (cl_collection *) obj;
 	res->_flags = flags;
 	res->_type = type;
 	res->_chunk_size = nmemb;

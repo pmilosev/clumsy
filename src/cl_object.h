@@ -21,6 +21,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <inttypes.h>
+
+/** Flags data type for object type flags. */
+typedef uint8_t cl_object_type;
 
 /** Object type flag for the top most object. */
 #define CL_OBJECT_TYPE_OBJECT 0x01
@@ -32,30 +36,32 @@ typedef struct cl_object_info_s cl_object_info;
 typedef struct cl_object_s cl_object;
 
 /** Object's destructor type. */
-typedef void (*cl_object_destructor) (void * self);
+typedef void (*cl_object_destructor) (void *self);
 
 /** Initializes a new object. 
  * @param size The size of the object to be created.
+ * @param type The type flags identifing object's type.
  * @param dest The destructor to be called when the object gets deallocated.
  * @return The new object with retain count 0. */
-cl_object *cl_object_init(size_t size, cl_object_destructor dest);
+void *cl_object_init(size_t size, cl_object_type type,
+		     cl_object_destructor dest);
 
 /** Checks the type flags for the provided object.
  * @param obj The object to be checked.
  * @param typeMask Bit mask, with each bit set to 1 if the object belongs to the type identified by the bit, or 0 otheriwse.
  * @return true If only the bits provided in the mask are set, false otherwise. */
-bool cl_object_type_check(void * object, size_t typeMask);
+bool cl_object_type_check(void *object, cl_object_type typeMask);
 
 /** Increases the object's referece counter. 
  * @param object The object to be retained.
  * @return The retained object. */
-void *cl_object_retain(void * object);
+void *cl_object_retain(void *object);
 
 /** Decreses the object's reference counter.
  * Triggers deallocation if the counter has dropped to 0.
  * @param object The object to be released.
  * @return The released object, or NULL if it was deallocated. */
-void *cl_object_release(void * object);
+void *cl_object_release(void *object);
 
 /** Initializes and retains a new object */
 #define cl_object_new(size, dest) cl_object_retain(cl_object_init(size, dest))

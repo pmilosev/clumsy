@@ -19,13 +19,12 @@
 #ifndef CL_COLLECTION_REP_H
 #define CL_COLLECTION_REP_H
 
-#include <inttypes.h>
 #include "cl_object_rep.h"
 
 struct cl_collection_s {
 	cl_object_info _obj_info;
-	uint8_t _flags;
-	uint8_t _type;
+	cl_object_type _type;
+	cl_collection_flags _flags;
 	size_t _chunk_size;
 	size_t _capacity;
 	size_t _count;
