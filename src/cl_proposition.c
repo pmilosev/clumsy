@@ -21,7 +21,7 @@
 #include "cl_proposition.h"
 #include "cl_proposition_rep.h"
 
-static void destructor(cl_object * obj)
+static void destructor(void * obj)
 {
 	assert(cl_object_type_check(obj, CL_OBJECT_TYPE_PROPOSITION));
 	cl_proposition *p = (cl_proposition *) obj;
