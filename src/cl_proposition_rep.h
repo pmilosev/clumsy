@@ -23,9 +23,9 @@
 #include "cl_object_rep.h"
 
 struct cl_proposition_s {
-	cl_object_info _obj_info;
+	cl_object_info_t _obj_info;
 	size_t _depth;
-	cl_proposition_context _context;
+	cl_proposition_context_t _context;
 };
 
 #endif				/* CL_PROPOSITION_REP_H */

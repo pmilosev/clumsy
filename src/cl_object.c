@@ -23,13 +23,13 @@
 #define CL_OBJECT_TYPE_OBJECT 0x0
 static const size_t MAGIC = 0x0b7ecdL;
 
-void *cl_object_init(size_t size, cl_object_type type,
-		     cl_object_destructor dest)
+void *cl_object_init(size_t size, cl_object_type_t type,
+		     cl_object_destructor_t dest)
 {
 	/* the size provided shuold at least fit the abstract object */
-	assert(size >= sizeof(cl_object));
+	assert(size >= sizeof(cl_object_t));
 
-	cl_object *res = malloc(size);
+	cl_object_t *res = malloc(size);
 	assert(res);
 
 	res->_obj_info._MAGIC = MAGIC;
@@ -40,13 +40,13 @@ void *cl_object_init(size_t size, cl_object_type type,
 	return res;
 }
 
-bool cl_object_type_check(void *object, cl_object_type typeMask)
+bool cl_object_type_check(void *object, cl_object_type_t typeMask)
 {
 	if (!object) {
 		return false;
 	}
 
-	cl_object *obj = (cl_object *) object;
+	cl_object_t *obj = (cl_object_t *) object;
 	return (obj->_obj_info._MAGIC == MAGIC)
 	    && (typeMask ? obj->_obj_info._type & typeMask : true);
 }
@@ -58,7 +58,7 @@ void *cl_object_retain(void *object)
 	}
 
 	assert(cl_object_type_check(object, CL_OBJECT_TYPE_OBJECT));
-	((cl_object *) object)->_obj_info._ref += 1;
+	((cl_object_t *) object)->_obj_info._ref += 1;
 	return object;
 }
 
@@ -69,7 +69,7 @@ void *cl_object_release(void *object)
 	}
 
 	assert(cl_object_type_check(object, CL_OBJECT_TYPE_OBJECT));
-	cl_object *obj = (cl_object *) object;
+	cl_object_t *obj = (cl_object_t *) object;
 
 	/* if the reference is already 0 don't decrease it */
 	obj->_obj_info._ref -= obj->_obj_info._ref ? 1 : 0;

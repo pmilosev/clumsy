@@ -23,14 +23,14 @@
 
 struct cl_object_info_s {
 	size_t _MAGIC;
-	cl_object_type _type;
+	cl_object_type_t _type;
 
 	size_t _ref;
-	cl_object_destructor _dest;
+	cl_object_destructor_t _dest;
 };
 
 struct cl_object_s {
-	cl_object_info _obj_info;
+	cl_object_info_t _obj_info;
 };
 
 #endif				/* CL_OBJECT_REP_H */

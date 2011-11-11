@@ -22,9 +22,9 @@
 #include "cl_object_rep.h"
 
 struct cl_collection_s {
-	cl_object_info _obj_info;
-	cl_object_type _type;
-	cl_collection_flags _flags;
+	cl_object_info_t _obj_info;
+	cl_object_type_t _type;
+	cl_collection_flags_t _flags;
 	size_t _chunk_size;
 	size_t _capacity;
 	size_t _count;

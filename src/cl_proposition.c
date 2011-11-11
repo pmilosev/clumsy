@@ -24,7 +24,7 @@
 static void destructor(void *obj)
 {
 	assert(cl_object_type_check(obj, CL_OBJECT_TYPE_PROPOSITION));
-	cl_proposition *p = (cl_proposition *) obj;
+	cl_proposition_t *p = (cl_proposition_t *) obj;
 
 	/** the context of the atomic propositions is managed outside of the proposition. */
 	if (p->_depth) {
@@ -33,7 +33,7 @@ static void destructor(void *obj)
 	}
 }
 
-cl_proposition *cl_proposition_init(cl_proposition_operator op, ...)
+cl_proposition_t *cl_proposition_init(cl_proposition_operator_t op, ...)
 {
 	va_list ap;
 	size_t argc = 1;
@@ -67,8 +67,8 @@ cl_proposition *cl_proposition_init(cl_proposition_operator op, ...)
 	}
 
 	/* initialize the object */
-	cl_proposition *res =
-	    cl_object_init(sizeof(cl_proposition), CL_OBJECT_TYPE_PROPOSITION,
+	cl_proposition_t *res =
+	    cl_object_init(sizeof(cl_proposition_t), CL_OBJECT_TYPE_PROPOSITION,
 			   &destructor);
 
 	/* set the operator (NULL will evaluate to FALSE) */
@@ -92,10 +92,10 @@ cl_proposition *cl_proposition_init(cl_proposition_operator op, ...)
 
 	/* in a case of a forumla the depth should be set pesimistic */
 	size_t depth0 =
-	    res->_context.argv[0] ? ((cl_proposition *) res->_context.argv[0])->
+	    res->_context.argv[0] ? ((cl_proposition_t *) res->_context.argv[0])->
 	    _depth + 1 : 0;
 	size_t depth1 =
-	    res->_context.argv[1] ? ((cl_proposition *) res->_context.argv[1])->
+	    res->_context.argv[1] ? ((cl_proposition_t *) res->_context.argv[1])->
 	    _depth + 1 : 0;
 	res->_depth = depth0 > depth1 ? depth0 : depth1;
 
@@ -115,7 +115,7 @@ cl_proposition *cl_proposition_init(cl_proposition_operator op, ...)
 	return res;
 }
 
-cl_proposition_context *cl_proposition_get_context(cl_proposition * p)
+cl_proposition_context_t *cl_proposition_get_context(cl_proposition_t * p)
 {
 	if (!p) {
 		return NULL;
@@ -125,7 +125,7 @@ cl_proposition_context *cl_proposition_get_context(cl_proposition * p)
 	return &(p->_context);
 }
 
-bool cl_proposition_eval(cl_proposition * p)
+bool cl_proposition_eval(cl_proposition_t * p)
 {
 	if (!p) {
 		return false;
@@ -135,23 +135,23 @@ bool cl_proposition_eval(cl_proposition * p)
 	return p->_context.op ? p->_context.op(p) : false;
 }
 
-bool cl_proposition_true_op(cl_proposition * self)
+bool cl_proposition_true_op(cl_proposition_t * self)
 {
 	return true;
 }
 
-bool cl_proposition_false_op(cl_proposition * self)
+bool cl_proposition_false_op(cl_proposition_t * self)
 {
 	return false;
 }
 
-bool cl_proposition_not_op(cl_proposition * self)
+bool cl_proposition_not_op(cl_proposition_t * self)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	return !cl_proposition_eval(self->_context.argv[0]);
 }
 
-bool cl_proposition_and_op(cl_proposition * self)
+bool cl_proposition_and_op(cl_proposition_t * self)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
@@ -160,7 +160,7 @@ bool cl_proposition_and_op(cl_proposition * self)
 	return r1 && r2;
 }
 
-bool cl_proposition_or_op(cl_proposition * self)
+bool cl_proposition_or_op(cl_proposition_t * self)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
@@ -169,7 +169,7 @@ bool cl_proposition_or_op(cl_proposition * self)
 	return r1 || r2;
 }
 
-bool cl_proposition_imply_op(cl_proposition * self)
+bool cl_proposition_imply_op(cl_proposition_t * self)
 {
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
 	bool r2 = cl_proposition_eval(self->_context.argv[1]);
@@ -177,7 +177,7 @@ bool cl_proposition_imply_op(cl_proposition * self)
 	return !r1 || r2;
 }
 
-bool cl_proposition_equivalent_op(cl_proposition * self)
+bool cl_proposition_equivalent_op(cl_proposition_t * self)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
@@ -186,7 +186,7 @@ bool cl_proposition_equivalent_op(cl_proposition * self)
 	return r1 == r2;
 }
 
-bool cl_proposition_xor_op(cl_proposition * self)
+bool cl_proposition_xor_op(cl_proposition_t * self)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
@@ -195,7 +195,7 @@ bool cl_proposition_xor_op(cl_proposition * self)
 	return r1 != r2;
 }
 
-bool cl_proposition_nand_op(cl_proposition * self)
+bool cl_proposition_nand_op(cl_proposition_t * self)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
@@ -204,7 +204,7 @@ bool cl_proposition_nand_op(cl_proposition * self)
 	return !(r1 && r2);
 }
 
-bool cl_proposition_nor_op(cl_proposition * self)
+bool cl_proposition_nor_op(cl_proposition_t * self)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);
@@ -213,7 +213,7 @@ bool cl_proposition_nor_op(cl_proposition * self)
 	return !(r1 || r2);
 }
 
-bool cl_proposition_nimply_op(cl_proposition * self)
+bool cl_proposition_nimply_op(cl_proposition_t * self)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	bool r1 = cl_proposition_eval(self->_context.argv[0]);

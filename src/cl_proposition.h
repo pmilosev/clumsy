@@ -26,15 +26,15 @@
 #define CL_OBJECT_TYPE_PROPOSITION 0x01
 
 /** Object type representing logical propositions. */
-typedef struct cl_proposition_s cl_proposition;
+typedef struct cl_proposition_s cl_proposition_t;
 
 /** Function type representing the logic operator */
-typedef bool(*cl_proposition_operator) (cl_proposition * self);
+typedef bool(*cl_proposition_operator_t) (cl_proposition_t * self);
 
 /** Structure holding logic context of the proposition */
-typedef struct cl_proposition_context_s cl_proposition_context;
+typedef struct cl_proposition_context_s cl_proposition_context_t;
 struct cl_proposition_context_s {
-	cl_proposition_operator op;
+	cl_proposition_operator_t op;
 	void *argv[2];
 };
 
@@ -46,36 +46,36 @@ struct cl_proposition_context_s {
  * In a case of an atomic proposition only one pointer is expected. If the proposition does not need any input you can provide NULL as argument.<BR>
  * In a case of a formula, the number of arguments depends on the operator.
  * @return The new proposition. */
-cl_proposition *cl_proposition_init(cl_proposition_operator op, ...);
+cl_proposition_t *cl_proposition_init(cl_proposition_operator_t op, ...);
 
 /** Returnes a pointer to the proposition's context */
-cl_proposition_context *cl_proposition_get_context(cl_proposition * p);
+cl_proposition_context_t *cl_proposition_get_context(cl_proposition_t * p);
 
 /** Evaluates the proposition. */
-bool cl_proposition_eval(cl_proposition * p);
+bool cl_proposition_eval(cl_proposition_t * p);
 
 /** The CONSTANT TRUE operator - tautology. */
-bool cl_proposition_true_op(cl_proposition * self);
+bool cl_proposition_true_op(cl_proposition_t * self);
 /** The CONSTANT FALSE operator - contradiction. */
-bool cl_proposition_false_op(cl_proposition * self);
+bool cl_proposition_false_op(cl_proposition_t * self);
 /** The NOT operator. */
-bool cl_proposition_not_op(cl_proposition * self);
+bool cl_proposition_not_op(cl_proposition_t * self);
 /** The AND operator. */
-bool cl_proposition_and_op(cl_proposition * self);
+bool cl_proposition_and_op(cl_proposition_t * self);
 /** The OR operator. */
-bool cl_proposition_or_op(cl_proposition * self);
+bool cl_proposition_or_op(cl_proposition_t * self);
 /** The IMPLY operator. */
-bool cl_proposition_imply_op(cl_proposition * self);
+bool cl_proposition_imply_op(cl_proposition_t * self);
 /** The EQUIVALENCY operator. */
-bool cl_proposition_equivalent_op(cl_proposition * self);
+bool cl_proposition_equivalent_op(cl_proposition_t * self);
 /** The XOR operator. */
-bool cl_proposition_xor_op(cl_proposition * self);
+bool cl_proposition_xor_op(cl_proposition_t * self);
 /** The NAND operator. */
-bool cl_proposition_nand_op(cl_proposition * self);
+bool cl_proposition_nand_op(cl_proposition_t * self);
 /** The NOR operator. */
-bool cl_proposition_nor_op(cl_proposition * self);
+bool cl_proposition_nor_op(cl_proposition_t * self);
 /** The NOT IMPLY operator. */
-bool cl_proposition_nimply_op(cl_proposition * self);
+bool cl_proposition_nimply_op(cl_proposition_t * self);
 
 /** Initializes and retains a new proposition */
 #define cl_proposition_new(op, ...) cl_object_retain(cl_proposition_init(op, __VA_ARGS__))

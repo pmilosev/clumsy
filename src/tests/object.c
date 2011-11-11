@@ -25,8 +25,8 @@
 #define CL_OBJECT_TYPE_OBJECT 0x0
 
 static bool destructor_called = false;
-static cl_object *tested_object = NULL;
-static void destructor(cl_object * obj)
+static cl_object_t *tested_object = NULL;
+static void destructor(cl_object_t * obj)
 {
 	fail_unless(obj == tested_object);
 	destructor_called = true;
@@ -34,7 +34,7 @@ static void destructor(cl_object * obj)
 
 START_TEST(test_object_assert_size)
 {
-	cl_object *obj = cl_object_init(0, CL_OBJECT_TYPE_OBJECT, NULL);
+	cl_object_t *obj = cl_object_init(0, CL_OBJECT_TYPE_OBJECT, NULL);
 }
 
 END_TEST;
@@ -42,8 +42,8 @@ END_TEST;
 START_TEST(test_object_management)
 {
 	/* test object initialization */
-	cl_object *obj =
-	    cl_object_init(sizeof(cl_object), CL_OBJECT_TYPE_OBJECT, NULL);
+	cl_object_t *obj =
+	    cl_object_init(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL);
 	fail_unless(obj->_obj_info._ref == 0);
 	fail_unless(obj->_obj_info._dest == NULL);
 
@@ -66,12 +66,12 @@ START_TEST(test_object_management)
 	fail_unless(cl_object_release(obj) == NULL);
 
 	/* test non-retained object release */
-	obj = cl_object_init(sizeof(cl_object), CL_OBJECT_TYPE_OBJECT, NULL);
+	obj = cl_object_init(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL);
 	fail_unless(cl_object_release(obj) == NULL);
 
 	/* test object destruction */
 	obj =
-	    cl_object_init(sizeof(cl_object), CL_OBJECT_TYPE_OBJECT,
+	    cl_object_init(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT,
 			   &destructor);
 	tested_object = obj;
 	destructor_called = false;

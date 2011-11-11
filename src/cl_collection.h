@@ -26,7 +26,7 @@
 #define CL_OBJECT_TYPE_COLLECTION 0x02
 
 /** Collection flags type. */
-typedef uint8_t cl_collection_flags;
+typedef uint8_t cl_collection_flags_t;
 
 /** SORTED collection flag. 
  * If this flag is set the collection would always be sorted. 
@@ -53,7 +53,7 @@ typedef uint8_t cl_collection_flags;
 #define CL_COLLECTION_DEFAULT_CHUNK 512
 
 /** Object type representing the collection. */
-typedef struct cl_collection_s cl_collection;
+typedef struct cl_collection_s cl_collection_t;
 
 /** Initializes a new collection.
  * @param nmemb The size of the collection in number of elements.
@@ -61,8 +61,8 @@ typedef struct cl_collection_s cl_collection;
  * If 0 is provided, the @ref CL_COLLECTION_DEFAULT_CHUNK will be used.
  * @param type The type of the objects the collection should be expecting (sanity check).
  * @param flags On or more of the flags defined above. */
-cl_collection *cl_collection_init(size_t nmemb, cl_object_type type,
-				  cl_collection_flags flags);
+cl_collection_t *cl_collection_init(size_t nmemb, cl_object_type_t type,
+				  cl_collection_flags_t flags);
 
 /* TODO:
  * cl_collection_add

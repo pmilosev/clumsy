@@ -21,10 +21,10 @@
 #include "../clumsy.h"
 #include "../cl_proposition_rep.h"
 
-static bool is_grater_than(cl_proposition * proposition)
+static bool is_grater_than(cl_proposition_t * proposition)
 {
 	fail_if(proposition == NULL);
-	cl_proposition_context *ctx = cl_proposition_get_context(proposition);
+	cl_proposition_context_t *ctx = cl_proposition_get_context(proposition);
 
 	int *data = (int *)(ctx->argv[0]);
 	return data[0] > data[1];
@@ -36,7 +36,7 @@ START_TEST(test_atomic_proposition)
 	fail_if(cl_proposition_eval(NULL));
 
 	/* constant TRUE propositions */
-	cl_proposition *p = cl_object_retain(cl_proposition_true());
+	cl_proposition_t *p = cl_object_retain(cl_proposition_true());
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
 	
@@ -65,7 +65,7 @@ START_TEST(test_atomic_proposition)
 	fail_if(p == NULL);
 
 	/* Check the context */
-	cl_proposition_context *ctx = cl_proposition_get_context(NULL);
+	cl_proposition_context_t *ctx = cl_proposition_get_context(NULL);
 	fail_unless(ctx == NULL);
 	ctx = cl_proposition_get_context(p);
 	fail_if(ctx == NULL);
@@ -87,10 +87,10 @@ END_TEST;
 
 START_TEST(test_complex_proposition)
 {
-	cl_proposition *p = NULL;
+	cl_proposition_t *p = NULL;
 
 	/* false */
-	cl_proposition *pfalse = cl_proposition_new(NULL, NULL);
+	cl_proposition_t *pfalse = cl_proposition_new(NULL, NULL);
 	fail_if(pfalse == NULL);
 	fail_if(cl_proposition_eval(pfalse));
 

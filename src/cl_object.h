@@ -24,30 +24,30 @@
 #include <inttypes.h>
 
 /** Flags data type for object type flags. */
-typedef uint8_t cl_object_type;
+typedef uint8_t cl_object_type_t;
 
 /** Struct containing object's metadata */
-typedef struct cl_object_info_s cl_object_info;
+typedef struct cl_object_info_s cl_object_info_t;
 
 /** Abstract object type. */
-typedef struct cl_object_s cl_object;
+typedef struct cl_object_s cl_object_t;
 
 /** Object's destructor type. */
-typedef void (*cl_object_destructor) (void *self);
+typedef void (*cl_object_destructor_t) (void *self);
 
 /** Initializes a new object. 
  * @param size The size of the object to be created.
  * @param type The type flags identifing object's type.
  * @param dest The destructor to be called when the object gets deallocated.
  * @return The new object with retain count 0. */
-void *cl_object_init(size_t size, cl_object_type type,
-		     cl_object_destructor dest);
+void *cl_object_init(size_t size, cl_object_type_t type,
+		     cl_object_destructor_t dest);
 
 /** Checks the type flags for the provided object.
  * @param obj The object to be checked.
  * @param typeMask Bit mask, with each bit set to 1 if the object belongs to the type identified by the bit, or 0 otheriwse.
  * @return true If only the bits provided in the mask are set, false otherwise. */
-bool cl_object_type_check(void *object, cl_object_type typeMask);
+bool cl_object_type_check(void *object, cl_object_type_t typeMask);
 
 /** Increases the object's referece counter. 
  * @param object The object to be retained.
