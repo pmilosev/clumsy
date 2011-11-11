@@ -23,6 +23,10 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
+/** Dummy definiton of the object type.
+ * Used for convenince with the @ref cl_object_type_check function. */
+#define CL_OBJECT_TYPE_OBJECT 0x0
+
 /** Flags data type for object type flags. */
 typedef uint8_t cl_object_type_t;
 

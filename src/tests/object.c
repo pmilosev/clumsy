@@ -22,8 +22,6 @@
 #include "../clumsy.h"
 #include "../cl_object_rep.h"
 
-#define CL_OBJECT_TYPE_OBJECT 0x0
-
 static bool destructor_called = false;
 static cl_object_t *tested_object = NULL;
 static void destructor(cl_object_t * obj)

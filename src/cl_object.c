@@ -20,7 +20,6 @@
 #include "cl_object.h"
 #include "cl_object_rep.h"
 
-#define CL_OBJECT_TYPE_OBJECT 0x0
 static const size_t MAGIC = 0x0b7ecdL;
 
 void *cl_object_init(size_t size, cl_object_type_t type,

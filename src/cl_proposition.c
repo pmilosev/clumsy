@@ -21,10 +21,10 @@
 #include "cl_proposition.h"
 #include "cl_proposition_rep.h"
 
-static void destructor(void *obj)
+static void destructor(void * self)
 {
-	assert(cl_object_type_check(obj, CL_OBJECT_TYPE_PROPOSITION));
-	cl_proposition_t *p = (cl_proposition_t *) obj;
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
+	cl_proposition_t *p = (cl_proposition_t *) self;
 
 	/** the context of the atomic propositions is managed outside of the proposition. */
 	if (p->_depth) {
