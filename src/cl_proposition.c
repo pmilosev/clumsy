@@ -21,7 +21,7 @@
 #include "cl_proposition.h"
 #include "cl_proposition_rep.h"
 
-static void destructor(void * self)
+static void destructor(void *self)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
 	cl_proposition_t *p = (cl_proposition_t *) self;
@@ -92,11 +92,11 @@ cl_proposition_t *cl_proposition_init(cl_proposition_operator_t op, ...)
 
 	/* in a case of a forumla the depth should be set pesimistic */
 	size_t depth0 =
-	    res->_context.argv[0] ? ((cl_proposition_t *) res->_context.argv[0])->
-	    _depth + 1 : 0;
+	    res->_context.argv[0] ? ((cl_proposition_t *) res->_context.
+				     argv[0])->_depth + 1 : 0;
 	size_t depth1 =
-	    res->_context.argv[1] ? ((cl_proposition_t *) res->_context.argv[1])->
-	    _depth + 1 : 0;
+	    res->_context.argv[1] ? ((cl_proposition_t *) res->_context.
+				     argv[1])->_depth + 1 : 0;
 	res->_depth = depth0 > depth1 ? depth0 : depth1;
 
 	/* finally, if the operator is comutative

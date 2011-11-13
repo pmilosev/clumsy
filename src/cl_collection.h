@@ -137,7 +137,8 @@ size_t cl_collection_remove(cl_collection_t * self, void *object);
 void *cl_collection_delete(cl_collection_t * self, size_t index);
 
 /** Sets the provided flags for the collection. */
-void cl_collection_flag_set(cl_collection_t * self, cl_collection_flags_t flags);
+void cl_collection_flag_set(cl_collection_t * self,
+			    cl_collection_flags_t flags);
 
 /** Unsets the provided flags for the collection. */
 void cl_collection_flag_unset(cl_collection_t * self,

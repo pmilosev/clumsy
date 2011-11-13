@@ -24,7 +24,7 @@
 
 static bool destructor_called = false;
 static cl_object_t *tested_object = NULL;
-static void destructor(void * obj)
+static void destructor(void *obj)
 {
 	fail_unless(obj == tested_object);
 	destructor_called = true;
@@ -35,12 +35,12 @@ START_TEST(test_object_assert_size)
 	cl_object_t *obj = cl_object_init(0, CL_OBJECT_TYPE_OBJECT, NULL);
 }
 
-END_TEST
-
-START_TEST(test_object_comparator)
+END_TEST START_TEST(test_object_comparator)
 {
-	cl_object_t *obj1 = cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL);
-	cl_object_t *obj2 = cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL);
+	cl_object_t *obj1 =
+	    cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL);
+	cl_object_t *obj2 =
+	    cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL);
 	if (obj1 > obj2) {
 		void *temp = obj1;
 		obj1 = obj2;
@@ -55,9 +55,7 @@ START_TEST(test_object_comparator)
 	cl_object_release(obj2);
 }
 
-END_TEST
-
-START_TEST(test_object_management)
+END_TEST START_TEST(test_object_management)
 {
 	/* test object initialization */
 	cl_object_t *obj =
@@ -97,9 +95,7 @@ START_TEST(test_object_management)
 	fail_unless(destructor_called);
 }
 
-END_TEST
-
-Suite *test_suite(void)
+END_TEST Suite * test_suite(void)
 {
 	Suite *s = suite_create("TEST OBJECT");
 

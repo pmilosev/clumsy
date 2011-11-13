@@ -21,13 +21,12 @@
 #include "../clumsy.h"
 #include "../cl_collection_rep.h"
 
-static int inverse_comparator(const void * p1, const void *p2)
+static int inverse_comparator(const void *p1, const void *p2)
 {
-	void * o1 = *((void **)p1);
-	void * o2 = *((void **)p2);
+	void *o1 = *((void **)p1);
+	void *o2 = *((void **)p2);
 
-	return o1 == o2 ? 0
-		: o1 < o2 ? 1 : -1;
+	return o1 == o2 ? 0 : o1 < o2 ? 1 : -1;
 }
 
 START_TEST(test_array)
@@ -125,7 +124,9 @@ END_TEST START_TEST(test_set)
 		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
 	};
 
-	cl_collection_t *arr = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION, CL_COLLECTION_FLAG_UNIQUE);
+	cl_collection_t *arr =
+	    cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
+			      CL_COLLECTION_FLAG_UNIQUE);
 
 	/* SORTED flag should be implied */
 	fail_unless(cl_collection_flag_check(arr, CL_COLLECTION_FLAG_SORTED));
@@ -138,7 +139,9 @@ END_TEST START_TEST(test_set)
 
 	/* add some random elements */
 	for (int i = 4; i < CL_COLLECTION_DEFAULT_CHUNK - 3; i++) {
-		cl_collection_add(arr, cl_object_init(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL));
+		cl_collection_add(arr,
+				  cl_object_init(sizeof(cl_object_t),
+						 CL_OBJECT_TYPE_OBJECT, NULL));
 	}
 
 	/* try to add duplicates */
@@ -162,7 +165,9 @@ END_TEST START_TEST(test_flags_comparator)
 		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
 	};
 
-	cl_collection_t *arr = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION, CL_COLLECTION_FLAG_UNIQUE);
+	cl_collection_t *arr =
+	    cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
+			      CL_COLLECTION_FLAG_UNIQUE);
 
 	/* add all but sorted in oposite direction */
 	qsort(obj, 3, sizeof(void *), &inverse_comparator);
@@ -200,7 +205,7 @@ END_TEST START_TEST(test_flags_comparator)
 	fail_unless(cl_collection_find(arr, 0, o) == 10);
 	fail_unless(cl_collection_find(arr, 13, o) == 13);
 	fail_unless(cl_collection_find(arr, 20, o) == SIZE_MAX);
-	
+
 	o = arr->_buffer[20];
 	fail_unless(cl_collection_find(arr, 0, o) == 20);
 	fail_unless(cl_collection_find(arr, 23, o) == 23);
@@ -233,7 +238,9 @@ END_TEST START_TEST(test_queue)
 		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
 	};
 
-	cl_collection_t *arr = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION, CL_COLLECTION_FLAG_QUEUE);
+	cl_collection_t *arr =
+	    cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
+			      CL_COLLECTION_FLAG_QUEUE);
 
 	/* successfull addition */
 	for (int i = 0; i < 3; i++) {
