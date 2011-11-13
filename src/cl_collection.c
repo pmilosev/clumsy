@@ -119,8 +119,8 @@ size_t cl_collection_insert(cl_collection_t * self, size_t index, void *object)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
 
-	/* absolute maximum was reached - no object is stored on this index */
-	if (index == SIZE_MAX) {
+	/* index out of bounds */
+	if (index > self->_count) {
 		return SIZE_MAX;
 	}
 
@@ -169,7 +169,12 @@ size_t cl_collection_insert(cl_collection_t * self, size_t index, void *object)
 size_t cl_collection_find(cl_collection_t * self, void *object)
 {
 	size_t ind = index(self, object);
-	return object == self->_buffer[ind] ? ind : SIZE_MAX;
+	if (ind >= self->_count
+			|| object != self->_buffer[ind]) {
+		return SIZE_MAX;
+	}
+
+	return ind;
 }
 
 void *cl_collection_get(cl_collection_t * self, size_t index)
@@ -189,7 +194,7 @@ static size_t check(cl_collection_t * self)
 		return 0;
 	}
 
-	return self->_count;
+	return self->_count - 1;
 }
 
 void *cl_collection_check(cl_collection_t * self)
@@ -241,6 +246,8 @@ void *cl_collection_delete(cl_collection_t * self, size_t index)
 			}
 		}
 	}
+
+	return self->_deleted;
 }
 
 void cl_collection_flag_set(cl_collection_t * self, cl_collection_flags_t flags)

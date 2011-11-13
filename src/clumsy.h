@@ -19,7 +19,8 @@
 #ifndef CLUMSY_H
 #define CLUMSY_H
 
-#include "cl_proposition.h"
 #include "cl_object.h"
+#include "cl_proposition.h"
+#include "cl_collection.h"
 
 #endif				/* CLUMSY_H */

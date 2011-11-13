@@ -138,6 +138,6 @@ bool cl_collection_flag_check(cl_collection_t * self,
 			      cl_collection_flags_t mask);
 
 /** Initializes and retains a new collection. */
-#define cl_collection_new(nmemb, size, flags) cl_object_retain(cl_collection_init(nmemb, size, flags))
+#define cl_collection_new(nmemb, type, flags) cl_object_retain(cl_collection_init(nmemb, type, flags))
 
 #endif				/* CL_COLLECTION_H */

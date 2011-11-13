@@ -24,7 +24,7 @@
 
 static bool destructor_called = false;
 static cl_object_t *tested_object = NULL;
-static void destructor(cl_object_t * obj)
+static void destructor(void * obj)
 {
 	fail_unless(obj == tested_object);
 	destructor_called = true;
@@ -35,7 +35,7 @@ START_TEST(test_object_assert_size)
 	cl_object_t *obj = cl_object_init(0, CL_OBJECT_TYPE_OBJECT, NULL);
 }
 
-END_TEST;
+END_TEST
 
 START_TEST(test_object_management)
 {
@@ -77,7 +77,7 @@ START_TEST(test_object_management)
 	fail_unless(destructor_called);
 }
 
-END_TEST;
+END_TEST
 
 Suite *test_suite(void)
 {

@@ -83,7 +83,7 @@ START_TEST(test_atomic_proposition)
 	fail_unless(p == NULL);
 }
 
-END_TEST;
+END_TEST
 
 START_TEST(test_complex_proposition)
 {
@@ -473,7 +473,7 @@ START_TEST(test_complex_proposition)
 	fail_unless(pfalse == NULL);
 }
 
-END_TEST;
+END_TEST
 
 Suite *test_suite(void)
 {

@@ -65,6 +65,6 @@ void *cl_object_retain(void *object);
 void *cl_object_release(void *object);
 
 /** Initializes and retains a new object */
-#define cl_object_new(size, dest) cl_object_retain(cl_object_init(size, dest))
+#define cl_object_new(size, type, dest) cl_object_retain(cl_object_init(size, type, dest))
 
 #endif				/* CL_OBJECT_H */
