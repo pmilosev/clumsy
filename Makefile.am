@@ -104,4 +104,6 @@ autoclean: assert_wc_clean distclean
 	rm -rf ./config.sub
 	rm -rf ./ltmain.sh
 	rm -rf `find ./ -type f -name "*.[ch]~"`
+	rm -rf `find ./ -type f -name "*.gcda"`
+	rm -rf `find ./ -type f -name "*.gcno"`
 
