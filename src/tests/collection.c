@@ -23,24 +23,26 @@
 
 START_TEST(test_array)
 {
-	cl_object_t * obj[3] = {
+	cl_object_t *obj[3] = {
 		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
 		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
 		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
 	};
 
 	/* test initialization */
-	cl_collection_t *arr = cl_collection_new(3, CL_OBJECT_TYPE_OBJECT, 0);
+	cl_collection_t *arr =
+	    cl_collection_new(3, CL_OBJECT_TYPE_COLLECTION, 0);
+
 	fail_if(arr == NULL);
-	fail_unless(cl_object_type_check(arr, CL_OBJECT_TYPE_OBJECT));
-	fail_unless(arr->_capacity == 3);
+	fail_unless(cl_object_type_check(arr, CL_OBJECT_TYPE_COLLECTION));
+	fail_unless(cl_collection_capacity(arr) == 3);
+	fail_unless(cl_collection_count(arr) == 0);
 	fail_unless(arr->_chunk_size == 3);
-	fail_unless(arr->_count == 0);
 	fail_unless(arr->_flags == 0);
 	fail_if(arr->_buffer == NULL);
-		
+
 	/* successfull addition */
-	for (int i=0; i < 3; i++) {
+	for (int i = 0; i < 3; i++) {
 		fail_unless(cl_collection_add(arr, obj[i]) == i);
 		fail_unless(obj[i]->_obj_info._ref == 2);
 	}
@@ -50,11 +52,12 @@ START_TEST(test_array)
 
 	/* test autoresize (expanding) */
 	cl_collection_flag_set(arr, CL_COLLECTION_FLAG_AUTORESIZE);
-	fail_unless(cl_collection_flag_check(arr, CL_COLLECTION_FLAG_UNLIMITED));
+	fail_unless(cl_collection_flag_check
+		    (arr, CL_COLLECTION_FLAG_UNLIMITED));
 	fail_unless(cl_collection_add(arr, obj[0]) == 3);
-	fail_unless(arr->_capacity == 6);
 	fail_unless(arr->_chunk_size == 3);
-	fail_unless(arr->_count == 4);
+	fail_unless(cl_collection_capacity(arr) == 6);
+	fail_unless(cl_collection_count(arr) == 4);
 
 	/* test auto object retrieval */
 	fail_unless(obj[0]->_obj_info._ref == 3);
@@ -68,9 +71,9 @@ START_TEST(test_array)
 	fail_unless(obj[2]->_obj_info._ref == 2);
 
 	/* test autoresize (shrinking) */
-	fail_unless(arr->_capacity == 3);
 	fail_unless(arr->_chunk_size == 3);
-	fail_unless(arr->_count == 2);
+	fail_unless(cl_collection_capacity(arr) == 3);
+	fail_unless(cl_collection_count(arr) == 2);
 
 	/* test search */
 	fail_unless(cl_collection_find(arr, obj[0]) == 0);
@@ -93,47 +96,92 @@ START_TEST(test_array)
 	fail_unless(cl_collection_remove(arr, obj[2]) == obj[2]);
 	fail_unless(cl_collection_delete(arr, 0) == obj[1]);
 	fail_unless(cl_collection_delete(arr, 0) == NULL);
-	fail_unless(arr->_capacity == 3);
 	fail_unless(arr->_chunk_size == 3);
-	fail_unless(arr->_count == 0);
+	fail_unless(cl_collection_capacity(arr) == 3);
+	fail_unless(cl_collection_count(arr) == 0);
 
 	/* test destructor */
 	cl_object_release(arr);
-	for (int i=0; i < 3; i++) {
+	for (int i = 0; i < 3; i++) {
 		fail_unless(obj[i]->_obj_info._ref == 1);
 		cl_object_release(obj[i]);
 	}
 }
 
-END_TEST
-
-START_TEST(test_set)
+END_TEST START_TEST(test_set)
 {
+	cl_object_t *obj[3] = {
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
+	};
+
+	cl_collection_t *arr = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION, CL_COLLECTION_FLAG_UNIQUE);
+
+	/* SORTED flag should be implied */
+	fail_unless(cl_collection_flag_check(arr, CL_COLLECTION_FLAG_SORTED));
+
+	/* successfull addition */
+	for (int i = 0; i < 3; i++) {
+		fail_if(cl_collection_add(arr, obj[i]) == SIZE_MAX);
+		fail_unless(obj[i]->_obj_info._ref == 2);
+	}
+
+	/* add some random elements */
+	for (int i = 4; i < CL_COLLECTION_DEFAULT_CHUNK - 3; i++) {
+		cl_collection_add(arr, cl_object_init(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL));
+	}
+
+	/* try to add duplicates */
+	for (int i = 0; i < 3; i++) {
+		fail_unless(cl_collection_add(arr, obj[i]) == SIZE_MAX);
+	}
+
+	/* cleanup */
+	for (int i = 0; i < 3; i++) {
+		cl_object_release(obj[i]);
+	}
+
+	cl_object_release(arr);
 }
 
-END_TEST
-
-START_TEST(test_queue)
+END_TEST START_TEST(test_queue)
 {
+	cl_object_t *obj[3] = {
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
+	};
+
+	cl_collection_t *arr = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION, CL_COLLECTION_FLAG_QUEUE);
+
+	/* successfull addition */
+	for (int i = 0; i < 3; i++) {
+		fail_if(cl_collection_add(arr, obj[i]) == SIZE_MAX);
+		fail_unless(obj[i]->_obj_info._ref == 2);
+	}
+
+	/* test FIFO retrieval */
+	for (int i = 0; i < 3; i++) {
+		fail_unless(cl_collection_pick(arr) == obj[i]);
+	}
+
+	/* cleanup */
+	for (int i = 0; i < 3; i++) {
+		cl_object_release(obj[i]);
+	}
+
+	cl_object_release(arr);
 }
 
-END_TEST
-
-START_TEST(test_stack)
+END_TEST Suite *test_suite(void)
 {
-}
-
-END_TEST
-
-Suite *test_suite(void)
-{
-	Suite *s = suite_create("TEST OBJECT");
+	Suite *s = suite_create("TEST COLLECTION");
 
 	TCase *tc_core = tcase_create("TEST_COLLECTION");
 	tcase_add_test(tc_core, test_array);
 	tcase_add_test(tc_core, test_set);
 	tcase_add_test(tc_core, test_queue);
-	tcase_add_test(tc_core, test_stack);
 	suite_add_tcase(s, tc_core);
 
 	return s;

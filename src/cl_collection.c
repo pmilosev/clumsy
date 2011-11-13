@@ -50,6 +50,7 @@ cl_collection_t *cl_collection_init(size_t nmemb, cl_object_type_t type,
 			   &destructor);
 
 	/* set the collection attributes */
+	res->_deleted = NULL;
 	res->_type = type;
 	res->_chunk_size = nmemb;
 	res->_capacity = nmemb;
@@ -127,8 +128,8 @@ size_t cl_collection_insert(cl_collection_t * self, size_t index, void *object)
 	/* check if the object should be unique - implies sorted */
 	if (cl_collection_flag_check(self, CL_COLLECTION_FLAG_UNIQUE)) {
 		bool ok = true;
-		ok = index < self->_count ? object < self->_buffer[index] : ok;
-		ok = index > 0 ? object > self->_buffer[index - 1] : ok;
+		ok &= index < self->_count ? object < self->_buffer[index] : true;
+		ok &= index > 0 ? object > self->_buffer[index - 1] : true;
 
 		if (!ok) {
 			return SIZE_MAX;
