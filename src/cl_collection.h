@@ -74,7 +74,7 @@ typedef struct cl_collection_s cl_collection_t;
  * @param type The type of the objects the collection should be expecting (sanity check).
  * @param flags On or more of the flags defined above. */
 cl_collection_t *cl_collection_init(size_t nmemb, cl_object_type_t type,
-				  cl_collection_flags_t flags);
+				    cl_collection_flags_t flags);
 
 /** Returns the currently allocated length of the collection. */
 size_t cl_collection_capacity(cl_collection_t * self);
@@ -117,17 +117,25 @@ void *cl_collection_pick(cl_collection_t * self);
  * @param self The collection from which to remove the object.
  * @param object The object to be removed. The object is released by the collection.
  * @return The object if removed, or NULL otherwise. */
-void * cl_collection_remove(cl_collection_t * self, void *object);
+void *cl_collection_remove(cl_collection_t * self, void *object);
 
 /** Removes the object at the provided index.
  * @param self The collection from which to remove the object.
  * @param index The index of the object to be removed. 
  * @return The object that was removed, or NULL if index is out of bounds.
  * The object is released by the collection. */
-void * cl_collection_delete(cl_collection_t * self, size_t index);
+void *cl_collection_delete(cl_collection_t * self, size_t index);
+
+/** Sets the provided flags for the collection. */
+void cl_collection_flag_set(cl_collection_t * self, cl_collection_flags_t flags);
+
+/** Unsets the provided flags for the collection. */
+void cl_collection_flag_unset(cl_collection_t * self,
+			      cl_collection_flags_t flags);
 
 /** Returns wether any of the flags specified by the mask are set for the collection. */
-bool cl_collection_flag_check(cl_collection_t * self, cl_collection_flags_t mask);
+bool cl_collection_flag_check(cl_collection_t * self,
+			      cl_collection_flags_t mask);
 
 /** Initializes and retains a new collection. */
 #define cl_collection_new(nmemb, size, flags) cl_object_retain(cl_collection_init(nmemb, size, flags))

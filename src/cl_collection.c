@@ -21,7 +21,7 @@
 #include <assert.h>
 #include <string.h>
 
-static void destructor(void * self)
+static void destructor(void *self)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
 	cl_collection_t *c = (cl_collection_t *) self;
@@ -50,18 +50,13 @@ cl_collection_t *cl_collection_init(size_t nmemb, cl_object_type_t type,
 			   &destructor);
 
 	/* set the collection attributes */
-	res->_flags = flags;
 	res->_type = type;
 	res->_chunk_size = nmemb;
 	res->_capacity = nmemb;
 	res->_count = 0;
 	res->_buffer = buff;
-
-	/* set implied flags */
-	res->_flags |= cl_collection_flag_check(res, CL_COLLECTION_FLAG_UNIQUE)
-	    ? CL_COLLECTION_FLAG_SORTED : 0x0;
-	res->_flags |= cl_collection_flag_check(res, CL_COLLECTION_FLAG_AUTORESIZE)
-	    ? CL_COLLECTION_FLAG_UNLIMITED : 0x0;
+	res->_flags = 0;
+	cl_collection_flag_set(res, flags);
 
 	return res;
 }
@@ -82,7 +77,7 @@ size_t cl_collection_count(cl_collection_t * self)
 static size_t index(cl_collection_t * self, void *object)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
-	void ** array = self->_buffer;
+	void **array = self->_buffer;
 	size_t count = self->_count;
 	size_t index = 0;
 
@@ -115,8 +110,8 @@ static size_t index(cl_collection_t * self, void *object)
 size_t cl_collection_add(cl_collection_t * self, void *object)
 {
 	size_t ind = cl_collection_flag_check(self, CL_COLLECTION_FLAG_SORTED)
-		? index(self, object)
-		: self->_count;
+	    ? index(self, object)
+	    : self->_count;
 	cl_collection_insert(self, ind, object);
 }
 
@@ -132,8 +127,8 @@ size_t cl_collection_insert(cl_collection_t * self, size_t index, void *object)
 	/* check if the object should be unique - implies sorted */
 	if (cl_collection_flag_check(self, CL_COLLECTION_FLAG_UNIQUE)) {
 		bool ok = true;
-		ok = index < self->_count ? object < self->_buffer[index] : ok; 
-		ok = index > 0 ? object > self->_buffer[index - 1] : ok; 
+		ok = index < self->_count ? object < self->_buffer[index] : ok;
+		ok = index > 0 ? object > self->_buffer[index - 1] : ok;
 
 		if (!ok) {
 			return SIZE_MAX;
@@ -248,7 +243,37 @@ void *cl_collection_delete(cl_collection_t * self, size_t index)
 	}
 }
 
-bool cl_collection_flag_check(cl_collection_t * self, cl_collection_flags_t mask)
+void cl_collection_flag_set(cl_collection_t * self, cl_collection_flags_t flags)
+{
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
+	self->_flags |= flags;
+
+	/* set implied flags */
+	self->_flags |=
+	    cl_collection_flag_check(self, CL_COLLECTION_FLAG_UNIQUE)
+	    ? CL_COLLECTION_FLAG_SORTED : 0;
+	self->_flags |=
+	    cl_collection_flag_check(self, CL_COLLECTION_FLAG_AUTORESIZE)
+	    ? CL_COLLECTION_FLAG_UNLIMITED : 0;
+}
+
+void cl_collection_flag_unset(cl_collection_t * self,
+			      cl_collection_flags_t flags)
+{
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
+	self->_flags &= ~flags;
+
+	/* unset implied flags */
+	self->_flags &=
+	    ~(cl_collection_flag_check(self, CL_COLLECTION_FLAG_SORTED)
+	      ? 0 : CL_COLLECTION_FLAG_UNIQUE);
+	self->_flags &=
+	    ~(cl_collection_flag_check(self, CL_COLLECTION_FLAG_UNLIMITED)
+	      ? 0 : CL_COLLECTION_FLAG_AUTORESIZE);
+}
+
+bool cl_collection_flag_check(cl_collection_t * self,
+			      cl_collection_flags_t mask)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
 	return self->_flags & mask;
