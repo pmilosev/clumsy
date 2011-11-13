@@ -21,6 +21,15 @@
 #include "../clumsy.h"
 #include "../cl_collection_rep.h"
 
+static int inverse_comparator(const void * p1, const void *p2)
+{
+	void * o1 = *((void **)p1);
+	void * o2 = *((void **)p2);
+
+	return o1 == o2 ? 0
+		: o1 < o2 ? 1 : -1;
+}
+
 START_TEST(test_array)
 {
 	cl_object_t *obj[3] = {
@@ -40,6 +49,10 @@ START_TEST(test_array)
 	fail_unless(arr->_chunk_size == 3);
 	fail_unless(arr->_flags == 0);
 	fail_if(arr->_buffer == NULL);
+
+	/* search in an empty collection */
+	fail_unless(cl_collection_find(arr, 0, obj[1]) == SIZE_MAX);
+	fail_unless(cl_collection_pick(arr) == NULL);
 
 	/* successfull addition */
 	for (int i = 0; i < 3; i++) {
@@ -75,11 +88,6 @@ START_TEST(test_array)
 	fail_unless(cl_collection_capacity(arr) == 3);
 	fail_unless(cl_collection_count(arr) == 2);
 
-	/* test search */
-	fail_unless(cl_collection_find(arr, obj[0]) == 0);
-	fail_unless(cl_collection_find(arr, obj[1]) == 1);
-	fail_unless(cl_collection_find(arr, obj[2]) == SIZE_MAX);
-
 	/* test insert */
 	fail_unless(cl_collection_insert(arr, 3, obj[2]) == SIZE_MAX);
 	fail_unless(cl_collection_insert(arr, 0, obj[2]) == 0);
@@ -91,9 +99,10 @@ START_TEST(test_array)
 	fail_unless(cl_collection_get(arr, 3) == NULL);
 
 	/* test removal */
-	fail_unless(cl_collection_remove(arr, obj[0]) == obj[0]);
-	fail_unless(cl_collection_remove(arr, obj[0]) == NULL);
-	fail_unless(cl_collection_remove(arr, obj[2]) == obj[2]);
+	cl_collection_add(arr, obj[0]);
+	fail_unless(cl_collection_remove(arr, obj[0]) == 2);
+	fail_unless(cl_collection_remove(arr, obj[0]) == 0);
+	fail_unless(cl_collection_remove(arr, obj[2]) == 1);
 	fail_unless(cl_collection_delete(arr, 0) == obj[1]);
 	fail_unless(cl_collection_delete(arr, 0) == NULL);
 	fail_unless(arr->_chunk_size == 3);
@@ -145,6 +154,77 @@ END_TEST START_TEST(test_set)
 	cl_object_release(arr);
 }
 
+END_TEST START_TEST(test_flags_comparator)
+{
+	cl_object_t *obj[3] = {
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
+	};
+
+	cl_collection_t *arr = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION, CL_COLLECTION_FLAG_UNIQUE);
+
+	/* add all but sorted in oposite direction */
+	qsort(obj, 3, sizeof(void *), &inverse_comparator);
+	for (int i = 0; i < 3; i++) {
+		fail_unless(cl_collection_add(arr, obj[i]) == 0);
+		fail_unless(obj[i]->_obj_info._ref == 2);
+	}
+
+	/* clear the SORTED (implies UNIQUE) flag */
+	cl_collection_flag_unset(arr, CL_COLLECTION_FLAG_SORTED);
+	fail_if(cl_collection_flag_check(arr, CL_COLLECTION_FLAG_UNIQUE));
+
+	/* add non-sorted duplicate data */
+	void *temp = obj[0];
+	obj[0] = obj[1];
+	obj[1] = obj[2];
+	obj[2] = temp;
+	for (int i = 3; i < 30; i++) {
+		fail_unless(cl_collection_add(arr, obj[i % 3]) == i);
+	}
+
+	/* add the SORTED flag and test ordering */
+	cl_collection_flag_set(arr, CL_COLLECTION_FLAG_SORTED);
+	for (int i = 1; i < 30; i++) {
+		fail_unless(arr->_buffer[i - 1] <= arr->_buffer[i]);
+	}
+
+	/* test search */
+	void *o = arr->_buffer[0];
+	fail_unless(cl_collection_find(arr, 0, o) == 0);
+	fail_unless(cl_collection_find(arr, 3, o) == 3);
+	fail_unless(cl_collection_find(arr, 10, o) == SIZE_MAX);
+
+	o = arr->_buffer[10];
+	fail_unless(cl_collection_find(arr, 0, o) == 10);
+	fail_unless(cl_collection_find(arr, 13, o) == 13);
+	fail_unless(cl_collection_find(arr, 20, o) == SIZE_MAX);
+	
+	o = arr->_buffer[20];
+	fail_unless(cl_collection_find(arr, 0, o) == 20);
+	fail_unless(cl_collection_find(arr, 23, o) == 23);
+	fail_unless(cl_collection_find(arr, 30, o) == SIZE_MAX);
+	fail_unless(cl_collection_find(arr, 31, o) == SIZE_MAX);
+
+	/* test changing of the comparator */
+	cl_collection_comparator_set(arr, &inverse_comparator);
+	for (int i = 1; i < 30; i++) {
+		fail_unless(arr->_buffer[i - 1] >= arr->_buffer[i]);
+	}
+
+	/* test filtering */
+	cl_collection_flag_set(arr, CL_COLLECTION_FLAG_UNIQUE);
+	fail_unless(cl_collection_count(arr) == 3);
+
+	/* cleanup */
+	for (int i = 0; i < 3; i++) {
+		cl_object_release(obj[i]);
+	}
+
+	cl_object_release(arr);
+}
+
 END_TEST START_TEST(test_queue)
 {
 	cl_object_t *obj[3] = {
@@ -181,6 +261,7 @@ END_TEST Suite *test_suite(void)
 	TCase *tc_core = tcase_create("TEST_COLLECTION");
 	tcase_add_test(tc_core, test_array);
 	tcase_add_test(tc_core, test_set);
+	tcase_add_test(tc_core, test_flags_comparator);
 	tcase_add_test(tc_core, test_queue);
 	suite_add_tcase(s, tc_core);
 

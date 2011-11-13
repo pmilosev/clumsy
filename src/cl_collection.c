@@ -90,45 +90,55 @@ size_t cl_collection_count(cl_collection_t * self)
 	return self->_count;
 }
 
-/* returns the index of the object, if found, or where it shuold be placed, otherwise */
-static size_t index(cl_collection_t * self, void *object)
+static size_t index(cl_collection_t * self, size_t start, void *object)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
+	if (start > self->_count) {
+		return SIZE_MAX;
+	}
+
 	void **array = self->_buffer;
 	size_t count = self->_count;
-	size_t index = 0;
+	size_t ind = start;
 
 	/* if not sorted, search sequentially */
 	if (!cl_collection_flag_check(self, CL_COLLECTION_FLAG_SORTED)) {
-		for (index = 0; index < count; index++) {
-			if (self->_comparator(&array[index], &object) == 0) {
+		for (ind = start; ind < count; ind++) {
+			if (self->_comparator(&array[ind], &object) == 0) {
 				break;
 			}
 		}
 
-		return index;
+		return ind;
 	}
 
 	/* otherwise use bianry search */
-	int min = 0;
+	int min = start;
 	int max = self->_count - 1;
 	while ((min <= max)
-			&& (self->_comparator(&object, &array[index]) != 0)) {
-		index = (min + max) / 2;
-		if (self->_comparator(&object, &array[index]) > 0) {
-			min = ++index;
+			&& (self->_comparator(&object, &array[ind]) != 0)) {
+		ind = (min + max) / 2;
+		if (self->_comparator(&object, &array[ind]) > 0) {
+			min = ++ind;
 		} else {
-			max = index - 1;
+			max = ind - 1;
 		}
 	}
 
-	return index;
+	/* since bsearch does not guarantee the lowest index
+	 * if there are duplicates, do the correction sequentially */
+	while (ind > start
+			&& self->_comparator(&object, &array[ind - 1]) == 0) {
+		ind--;
+	}
+
+	return ind;
 }
 
 size_t cl_collection_add(cl_collection_t * self, void *object)
 {
 	size_t ind = cl_collection_flag_check(self, CL_COLLECTION_FLAG_SORTED)
-	    ? index(self, object)
+	    ? index(self, 0, object)
 	    : self->_count;
 	cl_collection_insert(self, ind, object);
 }
@@ -188,10 +198,9 @@ size_t cl_collection_insert(cl_collection_t * self, size_t index, void *object)
 	return index;
 }
 
-/* TODO: parameter for start index */
-size_t cl_collection_find(cl_collection_t * self, void *object)
+size_t cl_collection_find(cl_collection_t * self, size_t start, void *object)
 {
-	size_t ind = index(self, object);
+	size_t ind = index(self, start, object);
 	if (ind >= self->_count
 			|| self->_comparator(&object, &(self->_buffer[ind])) != 0) {
 		return SIZE_MAX;
@@ -231,13 +240,17 @@ void *cl_collection_pick(cl_collection_t * self)
 	return cl_collection_delete(self, index);
 }
 
-/* TODO: remove all entries for the object */
-void *cl_collection_remove(cl_collection_t * self, void *object)
+size_t cl_collection_remove(cl_collection_t * self, void *object)
 {
-	size_t ind = index(self, object);
-	return cl_collection_delete(self, ind);
+	size_t count = 0;
+	while (cl_collection_delete(self, index(self, 0, object))) {
+		count ++;
+	}
+	
+	return count;
 }
 
+/* TODO: make the method thread safe */
 void *cl_collection_delete(cl_collection_t * self, size_t index)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
@@ -274,10 +287,15 @@ void *cl_collection_delete(cl_collection_t * self, size_t index)
 	return self->_deleted;
 }
 
-/* TODO: filter multiple entries, and sort the collection if needed */
 void cl_collection_flag_set(cl_collection_t * self, cl_collection_flags_t flags)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
+	
+	/* check current flags */
+	bool sorted = cl_collection_flag_check(self, CL_COLLECTION_FLAG_SORTED);
+	bool unique = cl_collection_flag_check(self, CL_COLLECTION_FLAG_UNIQUE);
+
+	/* set flags */
 	self->_flags |= flags;
 
 	/* set implied flags */
@@ -287,6 +305,23 @@ void cl_collection_flag_set(cl_collection_t * self, cl_collection_flags_t flags)
 	self->_flags |=
 	    cl_collection_flag_check(self, CL_COLLECTION_FLAG_AUTORESIZE)
 	    ? CL_COLLECTION_FLAG_UNLIMITED : 0;
+
+	/* sort if required */
+	if (!sorted
+			&& cl_collection_flag_check(self, CL_COLLECTION_FLAG_SORTED)) {
+		qsort(self->_buffer, self->_count, sizeof(void *), self->_comparator);
+	}
+
+	/* filter if required */
+	if (!unique
+			&& cl_collection_flag_check(self, CL_COLLECTION_FLAG_UNIQUE)) {
+		for (int i = 1; i < self->_count; i++) {
+			if (self->_comparator(&(self->_buffer[i-1]), &(self->_buffer[i])) == 0) {
+				cl_collection_delete(self, i);
+				i--;
+			}
+		}
+	}
 }
 
 void cl_collection_flag_unset(cl_collection_t * self,
@@ -304,7 +339,6 @@ void cl_collection_flag_unset(cl_collection_t * self,
 	      ? 0 : CL_COLLECTION_FLAG_AUTORESIZE);
 }
 
-/* TODO: extract in a general flag checking function. */
 bool cl_collection_flag_check(cl_collection_t * self,
 			      cl_collection_flags_t mask)
 {

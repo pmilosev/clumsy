@@ -105,8 +105,12 @@ size_t cl_collection_add(cl_collection_t * self, void *object);
  * @return The index at which the object was added, or SIZE_MAX if there was some problem. */
 size_t cl_collection_insert(cl_collection_t * self, size_t index, void *object);
 
-/** Returns the index of the provided object, or SIZE_MAX if the object can not be found. */
-size_t cl_collection_find(cl_collection_t * self, void *object);
+/** Searches the collection for an object.
+ * @param self The collection.
+ * @param start The index from where to start the search.
+ * @param object The object to be found.
+ * @return The first index greater or equal to @start on which the object is found, or SIZE_MAX if not found. */
+size_t cl_collection_find(cl_collection_t * self, size_t start, void *object);
 
 /** Returns the object at the provided index, or NULL if the index is out of bounds. */
 void *cl_collection_get(cl_collection_t * self, size_t index);
@@ -119,11 +123,11 @@ void *cl_collection_check(cl_collection_t * self);
  * Same as @ref cl_collection_check, but additionally removes the returned object. */
 void *cl_collection_pick(cl_collection_t * self);
 
-/** Removes the provided object from the collection. 
- * @param self The collection from which to remove the object.
+/** Removes all entries of the provided object from the collection.
+ * @param self The collection.
  * @param object The object to be removed. The object is released by the collection.
- * @return The object if removed, or NULL otherwise. */
-void *cl_collection_remove(cl_collection_t * self, void *object);
+ * @return The number of entries removed. */
+size_t cl_collection_remove(cl_collection_t * self, void *object);
 
 /** Removes the object at the provided index.
  * @param self The collection from which to remove the object.
