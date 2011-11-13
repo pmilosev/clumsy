@@ -86,3 +86,15 @@ void *cl_object_release(void *object)
 	free(obj);
 	return NULL;
 }
+
+int cl_object_comparator(const void * p1, const void *p2)
+{
+	void * o1 = *((void **)p1);
+	void * o2 = *((void **)p2);
+
+	assert(cl_object_type_check(o1, CL_OBJECT_TYPE_OBJECT));
+	assert(cl_object_type_check(o2, CL_OBJECT_TYPE_OBJECT));
+
+	return o1 == o2 ? 0
+		: o1 < o2 ? -1 : 1;
+}

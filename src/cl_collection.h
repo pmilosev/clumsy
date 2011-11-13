@@ -76,6 +76,12 @@ typedef struct cl_collection_s cl_collection_t;
 cl_collection_t *cl_collection_init(size_t nmemb, cl_object_type_t type,
 				    cl_collection_flags_t flags);
 
+/** Sets a comparator function for the objects in the collection.
+ * By default the @ref cl_object_comparator function is used.
+ * @param self The collection.
+ * @param compar The comparator function. */
+void cl_collection_comparator_set(cl_collection_t * self, __compar_fn_t compar);
+
 /** Returns the currently allocated length of the collection. */
 size_t cl_collection_capacity(cl_collection_t * self);
 

@@ -37,6 +37,26 @@ START_TEST(test_object_assert_size)
 
 END_TEST
 
+START_TEST(test_object_comparator)
+{
+	cl_object_t *obj1 = cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL);
+	cl_object_t *obj2 = cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL);
+	if (obj1 > obj2) {
+		void *temp = obj1;
+		obj1 = obj2;
+		obj2 = temp;
+	}
+
+	fail_unless(cl_object_comparator(&obj1, &obj1) == 0);
+	fail_unless(cl_object_comparator(&obj2, &obj1) > 0);
+	fail_unless(cl_object_comparator(&obj1, &obj2) < 0);
+
+	cl_object_release(obj1);
+	cl_object_release(obj2);
+}
+
+END_TEST
+
 START_TEST(test_object_management)
 {
 	/* test object initialization */
@@ -86,6 +106,7 @@ Suite *test_suite(void)
 	TCase *tc_core = tcase_create("TEST_OBECT");
 	tcase_add_test_raise_signal(tc_core, test_object_assert_size, SIGABRT);
 	tcase_add_test(tc_core, test_object_management);
+	tcase_add_test(tc_core, test_object_comparator);
 	suite_add_tcase(s, tc_core);
 
 	return s;

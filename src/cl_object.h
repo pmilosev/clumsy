@@ -64,6 +64,10 @@ void *cl_object_retain(void *object);
  * @return The released object, or NULL if it was deallocated. */
 void *cl_object_release(void *object);
 
+/** Default object comparator. 
+ * Compares the object by memory address. */
+int cl_object_comparator(const void * p1, const void * p2);
+
 /** Initializes and retains a new object */
 #define cl_object_new(size, type, dest) cl_object_retain(cl_object_init(size, type, dest))
 

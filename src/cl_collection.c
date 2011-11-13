@@ -51,6 +51,7 @@ cl_collection_t *cl_collection_init(size_t nmemb, cl_object_type_t type,
 
 	/* set the collection attributes */
 	res->_deleted = NULL;
+	res->_comparator = &cl_object_comparator;
 	res->_type = type;
 	res->_chunk_size = nmemb;
 	res->_capacity = nmemb;
@@ -60,6 +61,21 @@ cl_collection_t *cl_collection_init(size_t nmemb, cl_object_type_t type,
 	cl_collection_flag_set(res, flags);
 
 	return res;
+}
+
+void cl_collection_comparator_set(cl_collection_t * self, __compar_fn_t compar)
+{
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
+
+	compar = compar ? compar : &cl_object_comparator;
+	if (compar == self->_comparator) {
+		return;
+	}
+
+	self->_comparator = compar;
+	if (cl_collection_flag_check(self, CL_COLLECTION_FLAG_SORTED)) {
+		qsort(self->_buffer, self->_count, sizeof(void *), compar);
+	}
 }
 
 size_t cl_collection_capacity(cl_collection_t * self)
@@ -85,7 +101,7 @@ static size_t index(cl_collection_t * self, void *object)
 	/* if not sorted, search sequentially */
 	if (!cl_collection_flag_check(self, CL_COLLECTION_FLAG_SORTED)) {
 		for (index = 0; index < count; index++) {
-			if (array[index] == object) {
+			if (self->_comparator(&array[index], &object) == 0) {
 				break;
 			}
 		}
@@ -96,9 +112,10 @@ static size_t index(cl_collection_t * self, void *object)
 	/* otherwise use bianry search */
 	int min = 0;
 	int max = self->_count - 1;
-	while ((min <= max) && (object != array[index])) {
+	while ((min <= max)
+			&& (self->_comparator(&object, &array[index]) != 0)) {
 		index = (min + max) / 2;
-		if (object > array[index]) {
+		if (self->_comparator(&object, &array[index]) > 0) {
 			min = ++index;
 		} else {
 			max = index - 1;
@@ -128,8 +145,12 @@ size_t cl_collection_insert(cl_collection_t * self, size_t index, void *object)
 	/* check if the object should be unique - implies sorted */
 	if (cl_collection_flag_check(self, CL_COLLECTION_FLAG_UNIQUE)) {
 		bool ok = true;
-		ok &= index < self->_count ? object < self->_buffer[index] : true;
-		ok &= index > 0 ? object > self->_buffer[index - 1] : true;
+		ok &= index < self->_count
+			? self->_comparator(&object, &(self->_buffer[index])) < 0
+			: true;
+		ok &= index > 0
+			? self->_comparator(&object, &(self->_buffer[index -1])) > 0
+			: true;
 
 		if (!ok) {
 			return SIZE_MAX;
@@ -167,11 +188,12 @@ size_t cl_collection_insert(cl_collection_t * self, size_t index, void *object)
 	return index;
 }
 
+/* TODO: parameter for start index */
 size_t cl_collection_find(cl_collection_t * self, void *object)
 {
 	size_t ind = index(self, object);
 	if (ind >= self->_count
-			|| object != self->_buffer[ind]) {
+			|| self->_comparator(&object, &(self->_buffer[ind])) != 0) {
 		return SIZE_MAX;
 	}
 
@@ -209,6 +231,7 @@ void *cl_collection_pick(cl_collection_t * self)
 	return cl_collection_delete(self, index);
 }
 
+/* TODO: remove all entries for the object */
 void *cl_collection_remove(cl_collection_t * self, void *object)
 {
 	size_t ind = index(self, object);
@@ -251,6 +274,7 @@ void *cl_collection_delete(cl_collection_t * self, size_t index)
 	return self->_deleted;
 }
 
+/* TODO: filter multiple entries, and sort the collection if needed */
 void cl_collection_flag_set(cl_collection_t * self, cl_collection_flags_t flags)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
@@ -280,6 +304,7 @@ void cl_collection_flag_unset(cl_collection_t * self,
 	      ? 0 : CL_COLLECTION_FLAG_AUTORESIZE);
 }
 
+/* TODO: extract in a general flag checking function. */
 bool cl_collection_flag_check(cl_collection_t * self,
 			      cl_collection_flags_t mask)
 {
