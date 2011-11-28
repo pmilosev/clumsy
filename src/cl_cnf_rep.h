@@ -16,12 +16,22 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLUMSY_H
-#define CLUMSY_H
+#ifndef CL_CNF_REP_H
+#define CL_CNF_REP_H
 
-#include "cl_object.h"
-#include "cl_proposition.h"
-#include "cl_collection.h"
-#include "cl_cnf.h"
+#include "cl_object_rep.h"
 
-#endif				/* CLUMSY_H */
+struct cl_cnf_s {
+	cl_object_info_t _obj_info;
+	cl_collection_t *_set;
+};
+
+struct cl_cnf_literal_s {
+	cl_object_info_t _obj_info;
+	cl_proposition_t *_proposition;
+	cl_cnf_literal_t *_dual;
+	bool _negation;
+	bool _value;
+};
+
+#endif				/* CL_CNF_REP_H */

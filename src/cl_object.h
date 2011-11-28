@@ -23,7 +23,7 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
-/** Dummy definiton of the object type.
+/** Dummy definiton of the object type flag.
  * Used for convenince with the @ref cl_object_type_check function. */
 #define CL_OBJECT_TYPE_OBJECT 0x0
 

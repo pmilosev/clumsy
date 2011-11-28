@@ -22,7 +22,7 @@
 #include "cl_object.h"
 #include <inttypes.h>
 
-/** Collection object type. Sets the third bit of the type flag. */
+/** Collection object type flag. */
 #define CL_OBJECT_TYPE_COLLECTION 0x02
 
 /** Collection flags type.

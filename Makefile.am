@@ -20,16 +20,22 @@ AM_CFLAGS = --pedantic --std=c99 -Werror
 
 # DEFINE THE MAIN GOAL
 lib_LTLIBRARIES = libclumsy.la
-libclumsy_la_SOURCES = src/cl_collection.c \
+libclumsy_la_SOURCES = src/cl_cnf.c \
+					   src/cl_collection.c \
 					   src/cl_proposition.c \
 					   src/cl_object.c
 libclumsy_la_HEADERS = src/clumsy.h
 libclumsy_ladir = .
 
 # SETUP THE UNIT TESTS
-check_PROGRAMS = src/tests/collection.test \
+check_PROGRAMS = src/tests/cnf.test \
+				 src/tests/collection.test \
 				 src/tests/proposition.test \
 				 src/tests/object.test
+
+src_tests_cnf_test_SOURCES = src/tests/cnf.c
+src_tests_cnf_test_CFLAGS = @CHECK_CFLAGS@ $(AM_CFLAGS)
+src_tests_cnf_test_LDADD = libclumsy.la @CHECK_LIBS@
 
 src_tests_collection_test_SOURCES = src/tests/collection.c
 src_tests_collection_test_CFLAGS = @CHECK_CFLAGS@ $(AM_CFLAGS)

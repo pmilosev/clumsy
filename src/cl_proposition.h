@@ -22,7 +22,7 @@
 #include "cl_object.h"
 #include <stdarg.h>
 
-/** Proposition object type. Sets the second bit of the type flag. */
+/** Proposition object type flag. */
 #define CL_OBJECT_TYPE_PROPOSITION 0x01
 
 /** Object type representing logical propositions. */
