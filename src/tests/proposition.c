@@ -30,6 +30,16 @@ static bool is_grater_than(cl_proposition_t * proposition)
 	return data[0] > data[1];
 }
 
+void setup()
+{
+	cl_object_pool_push();
+}
+
+void teardown()
+{
+	cl_object_pool_pop();
+}
+
 START_TEST(test_atomic_proposition)
 {
 	/* try evaluating NULL proposition */
@@ -39,25 +49,19 @@ START_TEST(test_atomic_proposition)
 	cl_proposition_t *p = cl_object_retain(cl_proposition_true());
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* constant FALSE propositions */
 	p = cl_object_retain(cl_proposition_false());
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* custom constant FALSE proposition */
 	p = cl_proposition_new(NULL, NULL);
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* Create a proposition */
 	int data[2] = { 1, 2 };
@@ -80,7 +84,6 @@ START_TEST(test_atomic_proposition)
 	data[0] = 3;
 	fail_unless(cl_proposition_eval(p));
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 }
 
 END_TEST START_TEST(test_complex_proposition)
@@ -96,17 +99,13 @@ END_TEST START_TEST(test_complex_proposition)
 	p = cl_object_retain(cl_proposition_not(pfalse));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* not true */
 	p = cl_object_retain(cl_proposition_not(cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true and true */
 	p = cl_object_retain(cl_proposition_and
@@ -114,35 +113,27 @@ END_TEST START_TEST(test_complex_proposition)
 			      cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true and false */
 	p = cl_object_retain(cl_proposition_and
 			     (cl_proposition_not(pfalse), pfalse));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false and true */
 	p = cl_object_retain(cl_proposition_and
 			     (pfalse, cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false and false */
 	p = cl_object_retain(cl_proposition_and(pfalse, pfalse));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true or true */
 	p = cl_object_retain(cl_proposition_or
@@ -150,35 +141,27 @@ END_TEST START_TEST(test_complex_proposition)
 			      cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true or false */
 	p = cl_object_retain(cl_proposition_or
 			     (cl_proposition_not(pfalse), pfalse));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false or true */
 	p = cl_object_retain(cl_proposition_or
 			     (pfalse, cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false or false */
 	p = cl_object_retain(cl_proposition_or(pfalse, pfalse));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true imply true */
 	p = cl_object_retain(cl_proposition_imply
@@ -186,35 +169,27 @@ END_TEST START_TEST(test_complex_proposition)
 			      cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true imply false */
 	p = cl_object_retain(cl_proposition_imply
 			     (cl_proposition_not(pfalse), pfalse));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false imply true */
 	p = cl_object_retain(cl_proposition_imply
 			     (pfalse, cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false imply false */
 	p = cl_object_retain(cl_proposition_imply(pfalse, pfalse));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true impled by true */
 	p = cl_object_retain(cl_proposition_implied
@@ -222,35 +197,27 @@ END_TEST START_TEST(test_complex_proposition)
 			      cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true impled by false */
 	p = cl_object_retain(cl_proposition_implied
 			     (cl_proposition_not(pfalse), pfalse));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false impled by true */
 	p = cl_object_retain(cl_proposition_implied
 			     (pfalse, cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false impled by false */
 	p = cl_object_retain(cl_proposition_implied(pfalse, pfalse));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true equivalent to true */
 	p = cl_object_retain(cl_proposition_equivalent
@@ -258,35 +225,27 @@ END_TEST START_TEST(test_complex_proposition)
 			      cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true equivalent to false */
 	p = cl_object_retain(cl_proposition_equivalent
 			     (cl_proposition_not(pfalse), pfalse));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false equivalent to true */
 	p = cl_object_retain(cl_proposition_equivalent
 			     (pfalse, cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false equivalent to false */
 	p = cl_object_retain(cl_proposition_equivalent(pfalse, pfalse));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true xor true */
 	p = cl_object_retain(cl_proposition_xor
@@ -294,35 +253,27 @@ END_TEST START_TEST(test_complex_proposition)
 			      cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true xor flase */
 	p = cl_object_retain(cl_proposition_xor
 			     (cl_proposition_not(pfalse), pfalse));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false xor true */
 	p = cl_object_retain(cl_proposition_xor
 			     (pfalse, cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false xor flase */
 	p = cl_object_retain(cl_proposition_xor(pfalse, pfalse));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true nand true */
 	p = cl_object_retain(cl_proposition_nand
@@ -330,35 +281,27 @@ END_TEST START_TEST(test_complex_proposition)
 			      cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true nand false */
 	p = cl_object_retain(cl_proposition_nand
 			     (cl_proposition_not(pfalse), pfalse));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false nand true */
 	p = cl_object_retain(cl_proposition_nand
 			     (pfalse, cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false nand false */
 	p = cl_object_retain(cl_proposition_nand(pfalse, pfalse));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true nor true */
 	p = cl_object_retain(cl_proposition_nor
@@ -366,35 +309,27 @@ END_TEST START_TEST(test_complex_proposition)
 			      cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true nor false */
 	p = cl_object_retain(cl_proposition_nor
 			     (cl_proposition_not(pfalse), pfalse));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false nor true */
 	p = cl_object_retain(cl_proposition_nor
 			     (pfalse, cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false nor false */
 	p = cl_object_retain(cl_proposition_nor(pfalse, pfalse));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true not imply true */
 	p = cl_object_retain(cl_proposition_nimply
@@ -402,35 +337,27 @@ END_TEST START_TEST(test_complex_proposition)
 			      cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true not imply false */
 	p = cl_object_retain(cl_proposition_nimply
 			     (cl_proposition_not(pfalse), pfalse));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false not imply true */
 	p = cl_object_retain(cl_proposition_nimply
 			     (pfalse, cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false not imply false */
 	p = cl_object_retain(cl_proposition_nimply(pfalse, pfalse));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true not impled by true */
 	p = cl_object_retain(cl_proposition_nimplied
@@ -438,45 +365,37 @@ END_TEST START_TEST(test_complex_proposition)
 			      cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* true not impled by false */
 	p = cl_object_retain(cl_proposition_nimplied
 			     (cl_proposition_not(pfalse), pfalse));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false not impled by true */
 	p = cl_object_retain(cl_proposition_nimplied
 			     (pfalse, cl_proposition_not(pfalse)));
 	fail_if(p == NULL);
 	fail_unless(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	/* false not impled by false */
 	p = cl_object_retain(cl_proposition_nimplied(pfalse, pfalse));
 	fail_if(p == NULL);
 	fail_if(cl_proposition_eval(p));
-
 	p = cl_object_release(p);
-	fail_unless(p == NULL);
 
 	pfalse = cl_object_release(pfalse);
-	fail_unless(pfalse == NULL);
 }
 
-END_TEST Suite * test_suite(void)
+END_TEST Suite *test_suite(void)
 {
 	Suite *s = suite_create("TEST PROPOSITIONS");
 
 	TCase *tc_core = tcase_create("TEST_PROPOSITION");
+	tcase_add_checked_fixture(tc_core, setup, teardown);
 	tcase_add_test(tc_core, test_atomic_proposition);
 	tcase_add_test(tc_core, test_complex_proposition);
 	suite_add_tcase(s, tc_core);

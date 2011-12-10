@@ -43,9 +43,9 @@ typedef void (*cl_object_destructor_t) (void *self);
  * @param size The size of the object to be created.
  * @param type The type flags identifing object's type.
  * @param dest The destructor to be called when the object gets deallocated.
- * @return The new object with retain count 0. */
-void *cl_object_init(size_t size, cl_object_type_t type,
-		     cl_object_destructor_t dest);
+ * @return The new object with retain count 1. */
+void *cl_object_new(size_t size, cl_object_type_t type,
+		    cl_object_destructor_t dest);
 
 /** Checks the type flags for the provided object.
  * @param obj The object to be checked.
@@ -64,11 +64,24 @@ void *cl_object_retain(void *object);
  * @return The released object, or NULL if it was deallocated. */
 void *cl_object_release(void *object);
 
+/** Schedules the object to be released in the future. */
+void *cl_object_autorelease(void *object);
+
+/** Pushes a new autorelease pool on the stack.
+ * This method needs to be called at least once before any object is autoreleased,
+ * or a call to a method returning an autoreleased object is made. */
+void cl_object_pool_push();
+
+/** Pops the top-most autorelease pool from the stack.
+ * When this is done all the objects, autoreleased after the pool was pushed on stack,
+ * will be released. */
+void cl_object_pool_pop();
+
 /** Default object comparator. 
  * Compares the object by memory address. */
 int cl_object_comparator(const void *p1, const void *p2);
 
-/** Initializes and retains a new object */
-#define cl_object_new(size, type, dest) cl_object_retain(cl_object_init(size, type, dest))
+/** Returns a new, autoreleased, object */
+#define cl_object(size, type, dest) cl_object_autorelease(cl_object_new(size, type, dest))
 
 #endif				/* CL_OBJECT_H */

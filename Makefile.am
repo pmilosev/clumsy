@@ -82,7 +82,7 @@ indent:
 	@if [ -n "$(FILES)" ]; then \
 		indent -linux $(FILES); \
 	else \
-		indent -linux `git ls-files ./src --other --exclude-standard | grep '.*\.[ch]$$'`; \
+		indent -linux `git ls-files ./src --modified --other --exclude-standard | grep '.*\.[ch]$$'`; \
 	fi
 endif
 

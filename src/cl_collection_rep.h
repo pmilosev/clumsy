@@ -23,7 +23,6 @@
 
 struct cl_collection_s {
 	cl_object_info_t _obj_info;
-	cl_object_t *_deleted;
 	__compar_fn_t _comparator;
 	cl_object_type_t _type;
 	cl_collection_flags_t _flags;

@@ -40,10 +40,10 @@ static void literal_destructor(void *self)
 	}
 }
 
-cl_cnf_t *cl_cnf_init()
+cl_cnf_t *cl_cnf_new()
 {
-	cl_cnf_t *self = cl_object_init(sizeof(cl_cnf_t),
-					CL_OBJECT_TYPE_CNF, &cnf_destructor);
+	cl_cnf_t *self = cl_object_new(sizeof(cl_cnf_t),
+				       CL_OBJECT_TYPE_CNF, &cnf_destructor);
 
 	self->_set = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
 				       CL_COLLECTION_FLAG_UNIQUE |
@@ -52,7 +52,7 @@ cl_cnf_t *cl_cnf_init()
 	return self;
 }
 
-cl_collection_t *cl_cnf_clause_init(size_t num, ...)
+cl_collection_t *cl_cnf_clause_new(size_t num, ...)
 {
 	va_list ap;
 
@@ -71,11 +71,11 @@ cl_collection_t *cl_cnf_clause_init(size_t num, ...)
 	return clause;
 }
 
-cl_cnf_literal_t *cl_cnf_literal_init()
+cl_cnf_literal_t *cl_cnf_literal_new()
 {
-	cl_cnf_literal_t *self = cl_object_init(sizeof(cl_cnf_literal_t),
-						CL_OBJECT_TYPE_CNF_LITERAL,
-						&literal_destructor);
+	cl_cnf_literal_t *self = cl_object_new(sizeof(cl_cnf_literal_t),
+					       CL_OBJECT_TYPE_CNF_LITERAL,
+					       &literal_destructor);
 
 	self->_proposition = NULL;
 	self->_dual = NULL;
@@ -91,23 +91,19 @@ cl_cnf_literal_t *cl_cnf_literal_not(cl_cnf_literal_t * literal)
 {
 	assert(cl_object_type_check(literal, CL_OBJECT_TYPE_CNF_LITERAL));
 
-	/* We need to retain / release the object here as nonretained
-	 *  object might be provided in which case the deallocation should be triggered. */
-	/* TODO: Check for simmilar situation trough out the code, and think of a more general solution. */
-	cl_object_retain(literal);
-
+	/* if the dual literal already exists, return it */
 	if (literal->_dual) {
 		return literal->_dual;
 	}
 
-	cl_cnf_literal_t *self = cl_cnf_literal_init();
+	/* construct the dual / nagated literal */
+	cl_cnf_literal_t *self = cl_cnf_literal();
 	self->_dual = literal;
 	literal->_dual = self;
 
 	self->_value = !literal->_value;
 	self->_negation = true;
 
-	cl_object_release(literal);
 	return self;
 }
 

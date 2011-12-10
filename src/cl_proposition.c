@@ -33,7 +33,7 @@ static void destructor(void *self)
 	}
 }
 
-cl_proposition_t *cl_proposition_init(cl_proposition_operator_t op, ...)
+cl_proposition_t *cl_proposition_new(cl_proposition_operator_t op, ...)
 {
 	va_list ap;
 	size_t argc = 1;
@@ -68,8 +68,8 @@ cl_proposition_t *cl_proposition_init(cl_proposition_operator_t op, ...)
 
 	/* initialize the object */
 	cl_proposition_t *res =
-	    cl_object_init(sizeof(cl_proposition_t), CL_OBJECT_TYPE_PROPOSITION,
-			   &destructor);
+	    cl_object_new(sizeof(cl_proposition_t), CL_OBJECT_TYPE_PROPOSITION,
+			  &destructor);
 
 	/* set the operator (NULL will evaluate to FALSE) */
 	res->_context.op = op;
@@ -92,11 +92,11 @@ cl_proposition_t *cl_proposition_init(cl_proposition_operator_t op, ...)
 
 	/* in a case of a forumla the depth should be set pesimistic */
 	size_t depth0 =
-	    res->_context.argv[0] ? ((cl_proposition_t *) res->_context.
-				     argv[0])->_depth + 1 : 0;
+	    res->_context.argv[0] ? ((cl_proposition_t *) res->
+				     _context.argv[0])->_depth + 1 : 0;
 	size_t depth1 =
-	    res->_context.argv[1] ? ((cl_proposition_t *) res->_context.
-				     argv[1])->_depth + 1 : 0;
+	    res->_context.argv[1] ? ((cl_proposition_t *) res->
+				     _context.argv[1])->_depth + 1 : 0;
 	res->_depth = depth0 > depth1 ? depth0 : depth1;
 
 	/* finally, if the operator is comutative

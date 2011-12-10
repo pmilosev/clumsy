@@ -58,8 +58,26 @@ static void check_cnf(cl_cnf_t * cnf)
 	cl_object_release(literals);
 }
 
+void setup()
+{
+	cl_object_pool_push();
+}
+
+void teardown()
+{
+	cl_object_pool_pop();
+}
+
 START_TEST(test_cnf)
 {
+	/* explicitly push a new autorelease pool 
+	 * as some literlas are made as negations of an
+	 * autoreleased ones.
+	 * They will only be converted into non-negations
+	 * after the autoreleased literals get deallocated */
+	cl_object_pool_push();
+
+	/* new CNF */
 	cl_cnf_t *cnf = cl_cnf_new();
 
 	/* test: P ^ ~Q ^ (~R v ~~R) ^ (~P v M) */
@@ -67,19 +85,17 @@ START_TEST(test_cnf)
 	cl_cnf_literal_t *m = cl_cnf_literal_new();
 
 	/* add P */
-	fail_unless(cl_cnf_add(cnf, cl_cnf_clause_init(1, p)));
+	fail_unless(cl_cnf_add(cnf, cl_cnf_clause(1, p)));
 
 	/* add ~Q */
 	fail_unless(cl_cnf_add
 		    (cnf,
-		     cl_cnf_clause_init(1,
-					cl_cnf_literal_not(cl_cnf_literal_init
-							   ()))));
+		     cl_cnf_clause(1, cl_cnf_literal_not(cl_cnf_literal()))));
 
 	/* add ~R v ~~R */
 	cl_collection_t *clause =
 	    cl_collection_new(2, CL_OBJECT_TYPE_CNF_LITERAL, 0);
-	cl_collection_add(clause, cl_cnf_literal_not(cl_cnf_literal_init()));
+	cl_collection_add(clause, cl_cnf_literal_not(cl_cnf_literal()));
 	cl_collection_add(clause,
 			  cl_cnf_literal_not(cl_collection_check(clause)));
 	cl_collection_flag_set(clause, CL_COLLECTION_FLAG_UNIQUE);
@@ -89,9 +105,14 @@ START_TEST(test_cnf)
 
 	/* add ~P v M */
 	fail_unless(cl_cnf_add
-		    (cnf, cl_cnf_clause_init(2, cl_cnf_literal_not(p), m)));
+		    (cnf, cl_cnf_clause(2, cl_cnf_literal_not(p), m)));
 	cl_object_release(p);
 	cl_object_release(m);
+
+	/* here we flush the autorelease pool to convert all negations,
+	 * for which the original literal was autoreleased,
+	 * into proper non-negation literals. */
+	cl_object_pool_pop();
 
 	check_cnf(cnf);
 	cl_object_release(cnf);
@@ -145,6 +166,7 @@ END_TEST Suite *test_suite(void)
 	Suite *s = suite_create("TEST CNF");
 
 	TCase *tc_core = tcase_create("TEST_CNF");
+	tcase_add_checked_fixture(tc_core, setup, teardown);
 	tcase_add_test(tc_core, test_cnf);
 	//tcase_add_test(tc_core, test_cnf_proposition);
 	suite_add_tcase(s, tc_core);

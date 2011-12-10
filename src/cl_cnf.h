@@ -35,7 +35,7 @@ typedef struct cl_cnf_s cl_cnf_t;
 typedef struct cl_cnf_literal_s cl_cnf_literal_t;
 
 /** Initializes a new CNF formula. */
-cl_cnf_t *cl_cnf_init();
+cl_cnf_t *cl_cnf_new();
 
 /** Ads the provided clause to the CNF formula.
  * @param self The CNF formula.
@@ -48,15 +48,15 @@ bool cl_cnf_add(cl_cnf_t * self, cl_collection_t * clause);
  * @param num The number of literals to be expected.
  * @param ... A list of @ref num number of literals.
  * @return The newly constructed clause, or NULL. */
-cl_collection_t *cl_cnf_clause_init(size_t num, ...);
+cl_collection_t *cl_cnf_clause_new(size_t num, ...);
 
 /** Constructs a CNF formula out of the provided propositional formula. */
 cl_cnf_t *cl_cnf_construct(cl_proposition_t * proposition);
 
 /** Initializes a new literal */
-cl_cnf_literal_t *cl_cnf_literal_init();
+cl_cnf_literal_t *cl_cnf_literal_new();
 
-/** Initializes a new literal, a negation of the provided one.
+/** Initializes a new autoreleased literal, a negation of the provided one.
  * If the original (dual) literal get deallocated, the instance returned
  * by this method becomes a non-negated literal. */
 cl_cnf_literal_t *cl_cnf_literal_not(cl_cnf_literal_t * literal);
@@ -75,13 +75,13 @@ bool cl_cnf_literal_assign(cl_cnf_literal_t * literal, bool value);
 /** Evaluates the CNF formula. */
 bool cl_cnf_evaluate(cl_cnf_t * self);
 
-/** Initializes and retains a new CNF formula. */
-#define cl_cnf_new() cl_object_retain(cl_cnf_init())
+/** Returns a new, autoreleased, CNF formula. */
+#define cl_cnf() cl_object_autorelease(cl_cnf_new())
 
-/** Initializes and retains a new literal. */
-#define cl_cnf_literal_new() cl_object_retain(cl_cnf_literal_init())
+/** Returns a new, autoreleased, literal. */
+#define cl_cnf_literal() cl_object_autorelease(cl_cnf_literal_new())
 
-/** Initializes and retains a new clause. */
-#define cl_cnf_clause_new(num, ...) cl_object_retain(cl_cnf_clause_init(num, __VA_ARGS__))
+/** returns a new, autoreleased, clause. */
+#define cl_cnf_clause(num, ...) cl_object_autorelease(cl_cnf_clause_new(num, __VA_ARGS__))
 
 #endif				/* CL_CNF_H */

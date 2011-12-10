@@ -29,6 +29,16 @@ static int inverse_comparator(const void *p1, const void *p2)
 	return o1 == o2 ? 0 : o1 < o2 ? 1 : -1;
 }
 
+void setup()
+{
+	cl_object_pool_push();
+}
+
+void teardown()
+{
+	cl_object_pool_pop();
+}
+
 START_TEST(test_array)
 {
 	cl_object_t *obj[3] = {
@@ -78,8 +88,7 @@ START_TEST(test_array)
 
 	fail_unless(obj[2]->_obj_info._ref == 2);
 	fail_unless(cl_collection_pick(arr) == obj[2]);
-	fail_unless(arr->_deleted == obj[2]);
-	fail_unless(obj[0]->_obj_info._ref == 2);
+	fail_unless(obj[0]->_obj_info._ref == 3);
 	fail_unless(obj[2]->_obj_info._ref == 2);
 
 	/* test autoresize (shrinking) */
@@ -102,14 +111,14 @@ START_TEST(test_array)
 	fail_unless(cl_collection_remove(arr, obj[0]) == 2);
 	fail_unless(cl_collection_remove(arr, obj[0]) == 0);
 	fail_unless(cl_collection_remove(arr, obj[2]) == 1);
-	fail_unless(cl_collection_delete(arr, 0) == obj[1]);
-	fail_unless(cl_collection_delete(arr, 0) == NULL);
+	cl_collection_delete(arr, 0);
 	fail_unless(arr->_chunk_size == 3);
 	fail_unless(cl_collection_capacity(arr) == 3);
 	fail_unless(cl_collection_count(arr) == 0);
 
 	/* test destructor */
 	cl_object_release(arr);
+	cl_object_pool_pop();
 	for (int i = 0; i < 3; i++) {
 		fail_unless(obj[i]->_obj_info._ref == 1);
 		cl_object_release(obj[i]);
@@ -124,9 +133,8 @@ END_TEST START_TEST(test_set)
 		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
 	};
 
-	cl_collection_t *arr =
-	    cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
-			      CL_COLLECTION_FLAG_UNIQUE);
+	cl_collection_t *arr = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
+						 CL_COLLECTION_FLAG_UNIQUE);
 
 	/* SORTED flag should be implied */
 	fail_unless(cl_collection_flag_check(arr, CL_COLLECTION_FLAG_SORTED));
@@ -140,8 +148,8 @@ END_TEST START_TEST(test_set)
 	/* add some random elements */
 	for (int i = 4; i < CL_COLLECTION_DEFAULT_CHUNK - 3; i++) {
 		cl_collection_add(arr,
-				  cl_object_init(sizeof(cl_object_t),
-						 CL_OBJECT_TYPE_OBJECT, NULL));
+				  cl_object(sizeof(cl_object_t),
+					    CL_OBJECT_TYPE_OBJECT, NULL));
 	}
 
 	/* try to add duplicates */
@@ -165,9 +173,8 @@ END_TEST START_TEST(test_flags_comparator)
 		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
 	};
 
-	cl_collection_t *arr =
-	    cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
-			      CL_COLLECTION_FLAG_UNIQUE);
+	cl_collection_t *arr = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
+						 CL_COLLECTION_FLAG_UNIQUE);
 
 	/* add all but sorted in oposite direction */
 	qsort(obj, 3, sizeof(void *), &inverse_comparator);
@@ -238,9 +245,8 @@ END_TEST START_TEST(test_queue)
 		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
 	};
 
-	cl_collection_t *arr =
-	    cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
-			      CL_COLLECTION_FLAG_QUEUE);
+	cl_collection_t *arr = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
+						 CL_COLLECTION_FLAG_QUEUE);
 
 	/* successfull addition */
 	for (int i = 0; i < 3; i++) {
@@ -266,6 +272,7 @@ END_TEST Suite *test_suite(void)
 	Suite *s = suite_create("TEST COLLECTION");
 
 	TCase *tc_core = tcase_create("TEST_COLLECTION");
+	tcase_add_checked_fixture(tc_core, setup, teardown);
 	tcase_add_test(tc_core, test_array);
 	tcase_add_test(tc_core, test_set);
 	tcase_add_test(tc_core, test_flags_comparator);

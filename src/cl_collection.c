@@ -26,7 +26,6 @@ static void destructor(void *self)
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
 	cl_collection_t *c = (cl_collection_t *) self;
 
-	cl_object_release(c->_deleted);
 	if (c->_buffer) {
 		for (int i = 0; i < c->_count; i++) {
 			cl_object_release(c->_buffer[i]);
@@ -36,8 +35,8 @@ static void destructor(void *self)
 	}
 }
 
-cl_collection_t *cl_collection_init(size_t nmemb, cl_object_type_t type,
-				    cl_collection_flags_t flags)
+cl_collection_t *cl_collection_new(size_t nmemb, cl_object_type_t type,
+				   cl_collection_flags_t flags)
 {
 	/* try if enough memory can be allocated */
 	nmemb = nmemb ? nmemb : CL_COLLECTION_DEFAULT_CHUNK;
@@ -46,11 +45,10 @@ cl_collection_t *cl_collection_init(size_t nmemb, cl_object_type_t type,
 
 	/* init the object */
 	cl_collection_t *res =
-	    cl_object_init(sizeof(cl_collection_t), CL_OBJECT_TYPE_COLLECTION,
-			   &destructor);
+	    cl_object_new(sizeof(cl_collection_t), CL_OBJECT_TYPE_COLLECTION,
+			  &destructor);
 
 	/* set the collection attributes */
-	res->_deleted = NULL;
 	res->_comparator = &cl_object_comparator;
 	res->_type = type;
 	res->_chunk_size = nmemb;
@@ -236,54 +234,61 @@ void *cl_collection_check(cl_collection_t * self)
 void *cl_collection_pick(cl_collection_t * self)
 {
 	size_t index = check(self);
-	return cl_collection_delete(self, index);
+	cl_object_t *obj = cl_collection_get(self, index);
+	cl_object_retain(obj);
+	cl_collection_delete(self, index);
+
+	return cl_object_autorelease(obj);
 }
 
 size_t cl_collection_remove(cl_collection_t * self, void *object)
 {
 	size_t count = 0;
-	while (cl_collection_delete(self, index(self, 0, object))) {
+	size_t i = index(self, 0, object);
+	void *obj = cl_collection_get(self, i);
+
+	while (obj && (self->_comparator(&obj, &object) == 0)) {
+		cl_collection_delete(self, i);
 		count++;
+
+		i = index(self, 0, object);
+		obj = cl_collection_get(self, i);
 	}
 
 	return count;
 }
 
-/* TODO: make the method thread safe */
-void *cl_collection_delete(cl_collection_t * self, size_t index)
+void cl_collection_delete(cl_collection_t * self, size_t index)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
 
-	/* postpone the release, so that the object can be retained from outside */
-	cl_object_release(self->_deleted);
-	self->_deleted = cl_collection_get(self, index);
+	cl_object_t *obj = cl_collection_get(self, index);
+	if (!obj) {
+		return;
+	}
 
 	/* shift the objects and reduce the buffer if needed */
-	if (self->_deleted) {
-		self->_count--;
-		memmove(self->_buffer + index, self->_buffer + index + 1,
-			(self->_count - index) * sizeof(void *));
+	self->_count--;
+	memmove(self->_buffer + index, self->_buffer + index + 1,
+		(self->_count - index) * sizeof(void *));
 
-		// TODO: measure the performance if we don't shift the memory when elements are removed from the front
-		// but keep a min index instead and only do the moving when adjasting the size of the buffer
+	// TODO: measure the performance if we don't shift the memory when elements are removed from the front
+	// but keep a min index instead and only do the moving when adjasting the size of the buffer
 
-		if (cl_collection_flag_check
-		    (self, CL_COLLECTION_FLAG_AUTORESIZE)
-		    && (self->_capacity - self->_count > self->_chunk_size)) {
+	if (cl_collection_flag_check(self, CL_COLLECTION_FLAG_AUTORESIZE)
+	    && (self->_capacity - self->_count > self->_chunk_size)) {
 
-			void *temp = realloc(self->_buffer,
-					     (self->_capacity -
-					      self->_chunk_size) *
-					     sizeof(void *));
+		void *temp = realloc(self->_buffer,
+				     (self->_capacity -
+				      self->_chunk_size) * sizeof(void *));
 
-			if (temp) {
-				self->_buffer = temp;
-				self->_capacity -= self->_chunk_size;
-			}
+		if (temp) {
+			self->_buffer = temp;
+			self->_capacity -= self->_chunk_size;
 		}
 	}
 
-	return self->_deleted;
+	cl_object_release(obj);
 }
 
 void cl_collection_flag_set(cl_collection_t * self, cl_collection_flags_t flags)
@@ -316,9 +321,8 @@ void cl_collection_flag_set(cl_collection_t * self, cl_collection_flags_t flags)
 	if (!unique
 	    && cl_collection_flag_check(self, CL_COLLECTION_FLAG_UNIQUE)) {
 		for (int i = 1; i < self->_count; i++) {
-			if (self->
-			    _comparator(&(self->_buffer[i - 1]),
-					&(self->_buffer[i])) == 0) {
+			if (self->_comparator(&(self->_buffer[i - 1]),
+					      &(self->_buffer[i])) == 0) {
 				cl_collection_delete(self, i);
 				i--;
 			}

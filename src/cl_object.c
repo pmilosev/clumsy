@@ -19,11 +19,13 @@
 #include <assert.h>
 #include "cl_object.h"
 #include "cl_object_rep.h"
+#include "cl_collection.h"
 
 static const size_t MAGIC = 0x0b7ecdL;
+static cl_collection_t *pool_stack = NULL;
 
-void *cl_object_init(size_t size, cl_object_type_t type,
-		     cl_object_destructor_t dest)
+void *cl_object_new(size_t size, cl_object_type_t type,
+		    cl_object_destructor_t dest)
 {
 	/* the size provided shuold at least fit the abstract object */
 	assert(size >= sizeof(cl_object_t));
@@ -33,7 +35,7 @@ void *cl_object_init(size_t size, cl_object_type_t type,
 
 	res->_obj_info._MAGIC = MAGIC;
 	res->_obj_info._type = type;
-	res->_obj_info._ref = 0;
+	res->_obj_info._ref = 1;
 	res->_obj_info._dest = dest;
 
 	return res;
@@ -70,8 +72,8 @@ void *cl_object_release(void *object)
 	assert(cl_object_type_check(object, CL_OBJECT_TYPE_OBJECT));
 	cl_object_t *obj = (cl_object_t *) object;
 
-	/* if the reference is already 0 don't decrease it */
-	obj->_obj_info._ref -= obj->_obj_info._ref ? 1 : 0;
+	/* decrease the reference count */
+	obj->_obj_info._ref--;
 
 	/* if the reference count is above 0 do nothing */
 	if (obj->_obj_info._ref) {
@@ -85,6 +87,55 @@ void *cl_object_release(void *object)
 
 	free(obj);
 	return NULL;
+}
+
+void *cl_object_autorelease(void *object)
+{
+	if (!object) {
+		return NULL;
+	}
+
+	assert(cl_object_type_check(object, CL_OBJECT_TYPE_OBJECT));
+	assert(cl_collection_count(pool_stack));
+
+	cl_object_t *obj = (cl_object_t *) object;
+	cl_collection_t *pool = cl_collection_check(pool_stack);
+
+	cl_collection_add(pool, obj);
+	return cl_object_release(obj);
+}
+
+void cl_object_pool_push()
+{
+	if (!pool_stack) {
+		pool_stack = cl_collection_new(0, CL_OBJECT_TYPE_OBJECT,
+					       CL_COLLECTION_FLAG_AUTORESIZE);
+	}
+
+	cl_collection_t *pool = cl_collection_new(0, CL_OBJECT_TYPE_OBJECT,
+						  CL_COLLECTION_FLAG_AUTORESIZE);
+
+	cl_collection_add(pool_stack, pool);
+	cl_object_release(pool);
+}
+
+void cl_object_pool_pop()
+{
+	if (!pool_stack) {
+		return;
+	}
+
+	/* remove the top most pool, 
+	 * which will automatically release all the 
+	 * autoreleased objects it is currently holding */
+	size_t pindex = cl_collection_count(pool_stack) - 1;
+	cl_collection_delete(pool_stack, pindex);
+
+	/* release the stack if it is empty */
+	if (cl_collection_count(pool_stack) == 0) {
+		cl_object_release(pool_stack);
+		pool_stack = NULL;
+	}
 }
 
 int cl_object_comparator(const void *p1, const void *p2)
