@@ -126,7 +126,7 @@ cl_collection_t *cl_cnf_literals(cl_cnf_t * self)
 {
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_CNF));
 
-	cl_collection_t *res = cl_collection_new(0, CL_OBJECT_TYPE_CNF_LITERAL,
+	cl_collection_t *res = cl_collection(0, CL_OBJECT_TYPE_CNF_LITERAL,
 						 CL_COLLECTION_FLAG_UNIQUE |
 						 CL_COLLECTION_FLAG_AUTORESIZE);
 

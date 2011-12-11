@@ -21,7 +21,6 @@
 #include "../clumsy.h"
 #include "../cl_cnf_rep.h"
 
-/* FIXME: There are some memorry leaks, run tests with valgrind and fix them. */
 static bool is_grater_than(cl_proposition_t * proposition)
 {
 	fail_if(proposition == NULL);
