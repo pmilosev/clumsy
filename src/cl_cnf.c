@@ -149,6 +149,10 @@ bool cl_cnf_literal_assign(cl_cnf_literal_t * literal, bool value)
 
 	if (!literal->_negation) {
 		literal->_value = value;
+		if (literal->_dual) {
+			literal->_dual->_value = !value;
+		}
+
 		return true;
 	}
 
