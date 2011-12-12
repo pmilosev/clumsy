@@ -16,13 +16,14 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLUMSY_H
-#define CLUMSY_H
+#ifndef CL_SAT_REP_H
+#define CL_SAT_REP_H
 
-#include "cl_object.h"
-#include "cl_proposition.h"
-#include "cl_collection.h"
-#include "cl_cnf.h"
-#include "cl_sat.h"
+#include "cl_object_rep.h"
 
-#endif				/* CLUMSY_H */
+struct cl_sat_s {
+	cl_object_info_t _obj_info;
+	size_t _maxflips;
+};
+
+#endif				/* CL_SAT_REP_H */

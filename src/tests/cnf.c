@@ -46,9 +46,16 @@ static void check_cnf(cl_cnf_t * cnf)
 	int count = 0;
 	for (int i = 0; i < 16; i++) {
 		cl_cnf_literal_assign(l0, i & 0x01);
+		fail_unless(cl_cnf_literal_value(l0) == (bool)(i & 0x01));
+
 		cl_cnf_literal_assign(l1, i & 0x02);
+		fail_unless(cl_cnf_literal_value(l1) == (bool)(i & 0x02));
+
 		cl_cnf_literal_assign(l2, i & 0x04);
+		fail_unless(cl_cnf_literal_value(l2) == (bool)(i & 0x04));
+
 		cl_cnf_literal_assign(l3, i & 0x08);
+		fail_unless(cl_cnf_literal_value(l3) == (bool)(i & 0x08));
 
 		count += cl_cnf_evaluate(cnf) ? 1 : 0;
 	}

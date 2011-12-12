@@ -80,8 +80,6 @@ cl_cnf_literal_t *cl_cnf_literal_new()
 	self->_proposition = NULL;
 	self->_dual = NULL;
 	self->_negation = false;
-
-	/* TODO: random initial assignment (what distribution ?) */
 	self->_value = false;
 
 	return self;
@@ -155,6 +153,12 @@ bool cl_cnf_literal_assign(cl_cnf_literal_t * literal, bool value)
 	}
 
 	return false;
+}
+
+bool cl_cnf_literal_value(cl_cnf_literal_t * literal)
+{
+	assert(cl_object_type_check(literal, CL_OBJECT_TYPE_CNF_LITERAL));
+	return literal->_value;
 }
 
 bool cl_cnf_evaluate(cl_cnf_t * self)

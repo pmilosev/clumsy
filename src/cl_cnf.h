@@ -72,6 +72,9 @@ cl_collection_t *cl_cnf_literals(cl_cnf_t * self);
  * The assignment will fail if the literal is a negation. */
 bool cl_cnf_literal_assign(cl_cnf_literal_t * literal, bool value);
 
+/** Returns the value of the literal. */
+bool cl_cnf_literal_value(cl_cnf_literal_t * literal);
+
 /** Evaluates the CNF formula. */
 bool cl_cnf_evaluate(cl_cnf_t * self);
 
