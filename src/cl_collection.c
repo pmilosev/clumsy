@@ -35,6 +35,52 @@ static void destructor(void *self)
 	}
 }
 
+static char *collection_printer(void *self)
+{
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_COLLECTION));
+	cl_collection_t *c = (cl_collection_t *) self;
+
+	size_t len = 0;
+	size_t count = cl_collection_count(c);
+	char **temp = malloc(sizeof(char *) * count);
+	size_t *lens = malloc(sizeof(size_t) * count);
+	assert(temp);
+	assert(lens);
+
+	/* print all objects and sum their string lengths */
+	for (int i = 0; i < count; i++) {
+		temp[i] = cl_object_to_string(cl_collection_get(c, i));
+		lens[i] = strlen(temp[i]);
+		len += lens[i];
+	}
+
+	/* extra lenght for the spearators, brackets and the terminator */
+	len += count ? 2 * (count - 1) : 0;
+	len += 3;
+
+	/* build the string */
+	char *buffer = malloc(sizeof(char) * len);
+	assert(buffer);
+
+	strcpy(buffer, "{");
+	size_t offset = 1;
+	for (int i = 0; i < count; i++) {
+		strcpy(buffer + offset, temp[i]);
+		offset += lens[i];
+		buffer[offset++] = ',';
+		buffer[offset++] = ' ';
+
+		free(temp[i]);
+	}
+	offset -= count ? 2 : 0;
+	strcpy(buffer + offset, "}");
+
+	free(temp);
+	free(lens);
+
+	return buffer;
+}
+
 cl_collection_t *cl_collection_new(size_t nmemb, cl_object_type_t type,
 				   cl_collection_flags_t flags)
 {
@@ -46,7 +92,7 @@ cl_collection_t *cl_collection_new(size_t nmemb, cl_object_type_t type,
 	/* init the object */
 	cl_collection_t *res =
 	    cl_object_new(sizeof(cl_collection_t), CL_OBJECT_TYPE_COLLECTION,
-			  &destructor);
+			  &destructor, &collection_printer);
 
 	/* set the collection attributes */
 	res->_comparator = &cl_object_comparator;

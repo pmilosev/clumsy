@@ -148,6 +148,6 @@ bool cl_collection_flag_check(cl_collection_t * self,
 			      cl_collection_flags_t mask);
 
 /** Returns a new, autoreleased, collection */
-#define cl_collection(nmemb, type, flags) cl_object_autorelease(cl_collection_new(nmemb, type, flags))
+#define cl_collection(...) cl_object_autorelease(cl_collection_new(__VA_ARGS__))
 
 #endif				/* CL_COLLECTION_H */

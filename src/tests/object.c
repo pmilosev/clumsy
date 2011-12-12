@@ -19,6 +19,7 @@
 #include <check.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <stdio.h>
 #include "../clumsy.h"
 #include "../cl_object_rep.h"
 
@@ -42,15 +43,17 @@ void teardown()
 
 START_TEST(test_object_assert_size)
 {
-	cl_object_t *obj = cl_object(0, CL_OBJECT_TYPE_OBJECT, NULL);
+	cl_object_t *obj = cl_object(0, CL_OBJECT_TYPE_OBJECT, NULL, NULL);
 }
 
 END_TEST START_TEST(test_object_comparator)
 {
 	cl_object_t *obj1 =
-	    cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL);
+	    cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			  NULL);
 	cl_object_t *obj2 =
-	    cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL);
+	    cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			  NULL);
 	if (obj1 > obj2) {
 		void *temp = obj1;
 		obj1 = obj2;
@@ -69,7 +72,7 @@ END_TEST START_TEST(test_object_management)
 {
 	/* test object initialization */
 	cl_object_t *obj =
-	    cl_object(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL);
+	    cl_object(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL, NULL);
 	fail_unless(obj->_obj_info._ref == 1);
 	fail_unless(obj->_obj_info._dest == NULL);
 
@@ -90,6 +93,15 @@ END_TEST START_TEST(test_object_management)
 	cl_object_pool_push();
 	fail_unless(obj->_obj_info._ref == 1);
 
+	/* test object printer */
+	char *str = cl_object_to_string(obj);
+	char expected[] = "0xffffffffffffffff";
+	/* SIZE_MAX pointer value not expected */
+	fail_if(strcmp(str, expected) == 0);
+	sprintf(expected, "%p", obj);
+	fail_unless(strcmp(str, expected) == 0);
+	free(str);
+
 	/* test regular object release */
 	cl_object_retain(obj);
 	fail_unless(cl_object_release(obj) == obj);
@@ -99,7 +111,7 @@ END_TEST START_TEST(test_object_management)
 	/* test object destruction */
 	obj =
 	    cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT,
-			  &destructor);
+			  &destructor, NULL);
 	tested_object = obj;
 	destructor_called = false;
 	fail_unless(cl_object_release(obj) == NULL);

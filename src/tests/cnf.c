@@ -18,6 +18,7 @@
 
 #include <check.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "../clumsy.h"
 #include "../cl_cnf_rep.h"
 
@@ -170,6 +171,23 @@ END_TEST START_TEST(test_cnf_proposition)
 	cl_object_release(cnf);
 }
 
+END_TEST START_TEST(test_printer)
+{
+	cl_cnf_t *cnf = cl_cnf();
+	cl_cnf_literal_t *lit = cl_cnf_literal();
+	cl_cnf_add(cnf, cl_cnf_clause(1, lit));
+	cl_cnf_literal_assign(lit, true);
+
+	char *str = cl_object_to_string(cnf);
+	char *expected = malloc(sizeof(char) * 64);
+	fail_if(expected == NULL);
+	sprintf(expected, "{{[%p : TRUE]}}", lit);
+
+	fail_unless(strcmp(expected, str) == 0);
+	free(str);
+	free(expected);
+}
+
 END_TEST Suite *test_suite(void)
 {
 	Suite *s = suite_create("TEST CNF");
@@ -177,6 +195,7 @@ END_TEST Suite *test_suite(void)
 	TCase *tc_core = tcase_create("TEST_CNF");
 	tcase_add_checked_fixture(tc_core, setup, teardown);
 	tcase_add_test(tc_core, test_cnf);
+	tcase_add_test(tc_core, test_printer);
 	//tcase_add_test(tc_core, test_cnf_proposition);
 	suite_add_tcase(s, tc_core);
 

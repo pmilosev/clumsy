@@ -390,6 +390,87 @@ END_TEST START_TEST(test_complex_proposition)
 	pfalse = cl_object_release(pfalse);
 }
 
+END_TEST START_TEST(test_printer)
+{
+	/* contant TRUE */
+	cl_proposition_t *p = cl_proposition_true();
+	char *str = cl_object_to_string(p);
+	fail_unless(strcmp(str, "TRUE") == 0);
+	free(str);
+
+	/* contant FALSE */
+	cl_proposition_t *q = cl_proposition_false();
+	str = cl_object_to_string(q);
+	fail_unless(strcmp(str, "FALSE") == 0);
+	free(str);
+
+	/* not */
+	cl_proposition_t *f = cl_proposition_not(p);
+	str = cl_object_to_string(f);
+	fail_unless(strcmp(str, "~TRUE") == 0);
+	free(str);
+
+	/* and */
+	f = cl_proposition_and(p, q);
+	str = cl_object_to_string(f);
+	fail_unless(strcmp(str, "(TRUE ^ FALSE)") == 0);
+	free(str);
+
+	/* or */
+	f = cl_proposition_or(p, q);
+	str = cl_object_to_string(f);
+	fail_unless(strcmp(str, "(TRUE v FALSE)") == 0);
+	free(str);
+
+	/* imply */
+	f = cl_proposition_imply(p, q);
+	str = cl_object_to_string(f);
+	fail_unless(strcmp(str, "(TRUE => FALSE)") == 0);
+	free(str);
+
+	/* implied */
+	f = cl_proposition_implied(p, q);
+	str = cl_object_to_string(f);
+	fail_unless(strcmp(str, "(FALSE => TRUE)") == 0);
+	free(str);
+
+	/* equivalent */
+	f = cl_proposition_equivalent(p, q);
+	str = cl_object_to_string(f);
+	fail_unless(strcmp(str, "(TRUE <=> FALSE)") == 0);
+	free(str);
+
+	/* xor */
+	f = cl_proposition_xor(p, q);
+	str = cl_object_to_string(f);
+	fail_unless(strcmp(str, "(TRUE + FALSE)") == 0);
+	free(str);
+
+	/* nand */
+	f = cl_proposition_nand(p, q);
+	str = cl_object_to_string(f);
+	fail_unless(strcmp(str, "~(TRUE ^ FALSE)") == 0);
+	free(str);
+
+	/* nor */
+	f = cl_proposition_nor(p, q);
+	str = cl_object_to_string(f);
+	fail_unless(strcmp(str, "~(TRUE v FALSE)") == 0);
+	free(str);
+
+	/* nimply */
+	f = cl_proposition_nimply(p, q);
+	str = cl_object_to_string(f);
+	fail_unless(strcmp(str, "~(TRUE => FALSE)") == 0);
+	free(str);
+
+	/* nimplied */
+	f = cl_proposition_nimplied(p, q);
+	str = cl_object_to_string(f);
+	fail_unless(strcmp(str, "~(FALSE => TRUE)") == 0);
+	free(str);
+}
+
 END_TEST Suite *test_suite(void)
 {
 	Suite *s = suite_create("TEST PROPOSITIONS");
@@ -398,6 +479,7 @@ END_TEST Suite *test_suite(void)
 	tcase_add_checked_fixture(tc_core, setup, teardown);
 	tcase_add_test(tc_core, test_atomic_proposition);
 	tcase_add_test(tc_core, test_complex_proposition);
+	tcase_add_test(tc_core, test_printer);
 	suite_add_tcase(s, tc_core);
 
 	return s;

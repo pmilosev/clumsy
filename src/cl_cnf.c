@@ -19,6 +19,7 @@
 #include "cl_cnf.h"
 #include "cl_cnf_rep.h"
 #include <assert.h>
+#include <string.h>
 
 static void cnf_destructor(void *self)
 {
@@ -40,10 +41,59 @@ static void literal_destructor(void *self)
 	}
 }
 
+static char *cnf_printer(void *self)
+{
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_CNF));
+	cl_cnf_t *cnf = (cl_cnf_t *) self;
+
+	return cl_object_to_string(cnf->_set);
+}
+
+static char *literal_printer(void *self)
+{
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_CNF_LITERAL));
+	cl_cnf_literal_t *lit = (cl_cnf_literal_t *) self;
+
+	char *buffer = NULL;
+
+	if (lit->_negation) {
+		assert(lit->_dual);
+		char *temp = cl_object_to_string(lit->_dual);
+		size_t len = strlen(temp) + 2;
+		buffer = malloc(sizeof(char) * len);
+		assert(buffer);
+
+		strcpy(buffer, "~");
+		strcpy(buffer + 1, temp);
+
+		free(temp);
+		return buffer;
+	}
+
+	char *temp = cl_object_printer(lit);
+	size_t len1 = strlen(temp);
+	size_t len = len1;
+	len += lit->_value ? 10 : 11;
+	buffer = malloc(sizeof(char) * len);
+	assert(buffer);
+
+	strcpy(buffer, "[");
+	strcpy(buffer + 1, temp);
+	if (lit->_value) {
+		strcpy(buffer + len1 + 1, " : TRUE]");
+	} else {
+		strcpy(buffer + len1 + 1, " : FALSE]");
+	}
+
+	free(temp);
+	return buffer;
+}
+
 cl_cnf_t *cl_cnf_new()
 {
 	cl_cnf_t *self = cl_object_new(sizeof(cl_cnf_t),
-				       CL_OBJECT_TYPE_CNF, &cnf_destructor);
+				       CL_OBJECT_TYPE_CNF, &cnf_destructor,
+				       &cnf_printer);
 
 	self->_set = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
 				       CL_COLLECTION_FLAG_UNIQUE |
@@ -75,7 +125,8 @@ cl_cnf_literal_t *cl_cnf_literal_new()
 {
 	cl_cnf_literal_t *self = cl_object_new(sizeof(cl_cnf_literal_t),
 					       CL_OBJECT_TYPE_CNF_LITERAL,
-					       &literal_destructor);
+					       &literal_destructor,
+					       &literal_printer);
 
 	self->_proposition = NULL;
 	self->_dual = NULL;
@@ -125,8 +176,8 @@ cl_collection_t *cl_cnf_literals(cl_cnf_t * self)
 	assert(cl_object_type_check(self, CL_OBJECT_TYPE_CNF));
 
 	cl_collection_t *res = cl_collection(0, CL_OBJECT_TYPE_CNF_LITERAL,
-						 CL_COLLECTION_FLAG_UNIQUE |
-						 CL_COLLECTION_FLAG_AUTORESIZE);
+					     CL_COLLECTION_FLAG_UNIQUE |
+					     CL_COLLECTION_FLAG_AUTORESIZE);
 
 	cl_collection_t *set = self->_set;
 	for (int i = 0; i < cl_collection_count(set); i++) {

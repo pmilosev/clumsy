@@ -17,6 +17,7 @@
  */
 
 #include <assert.h>
+#include <stdio.h>
 #include "cl_object.h"
 #include "cl_object_rep.h"
 #include "cl_collection.h"
@@ -24,8 +25,22 @@
 static const size_t MAGIC = 0x0b7ecdL;
 static cl_collection_t *pool_stack = NULL;
 
+char *cl_object_printer(void *self)
+{
+	/* '0x' = 2 chars
+	 * 64-bits = 8 bytes = 16 chars
+	 * '\0' = 1 char
+	 * ----------------
+	 *  MAX 19 chars would be needed */
+	char *buffer = malloc(sizeof(char) * 19);
+	assert(buffer);
+
+	sprintf(buffer, "%p", self);
+	return buffer;
+}
+
 void *cl_object_new(size_t size, cl_object_type_t type,
-		    cl_object_destructor_t dest)
+		    cl_object_destructor_t dest, cl_object_printer_t to_str)
 {
 	/* the size provided shuold at least fit the abstract object */
 	assert(size >= sizeof(cl_object_t));
@@ -37,6 +52,7 @@ void *cl_object_new(size_t size, cl_object_type_t type,
 	res->_obj_info._type = type;
 	res->_obj_info._ref = 1;
 	res->_obj_info._dest = dest;
+	res->_obj_info._to_str = to_str ? to_str : &cl_object_printer;
 
 	return res;
 }
@@ -61,6 +77,12 @@ void *cl_object_retain(void *object)
 	assert(cl_object_type_check(object, CL_OBJECT_TYPE_OBJECT));
 	((cl_object_t *) object)->_obj_info._ref += 1;
 	return object;
+}
+
+char *cl_object_to_string(void *self)
+{
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_OBJECT));
+	return ((cl_object_t *) self)->_obj_info._to_str(self);
 }
 
 void *cl_object_release(void *object)

@@ -27,6 +27,7 @@ struct cl_object_info_s {
 
 	size_t _ref;
 	cl_object_destructor_t _dest;
+	cl_object_printer_t _to_str;
 };
 
 struct cl_object_s {

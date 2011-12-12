@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <inttypes.h>
+#include <stdarg.h>
 
 /** Dummy definiton of the object type flag.
  * Used for convenince with the @ref cl_object_type_check function. */
@@ -39,19 +40,30 @@ typedef struct cl_object_s cl_object_t;
 /** Object's destructor type. */
 typedef void (*cl_object_destructor_t) (void *self);
 
+/** Object's printer type. */
+typedef char *(*cl_object_printer_t) (void *self);
+
 /** Initializes a new object. 
  * @param size The size of the object to be created.
  * @param type The type flags identifing object's type.
  * @param dest The destructor to be called when the object gets deallocated.
+ * @param to_str The object printer. If NULL is provided the default one would be used.
  * @return The new object with retain count 1. */
 void *cl_object_new(size_t size, cl_object_type_t type,
-		    cl_object_destructor_t dest);
+		    cl_object_destructor_t dest, cl_object_printer_t to_str);
 
 /** Checks the type flags for the provided object.
  * @param obj The object to be checked.
  * @param typeMask Bit mask, with each bit set to 1 if the object belongs to the type identified by the bit, or 0 otheriwse.
  * @return true If only the bits provided in the mask are set, false otherwise. */
 bool cl_object_type_check(void *object, cl_object_type_t typeMask);
+
+/* Returns a string reperesenting the object.
+ * The returned string needs to be freed by the caller. */
+char *cl_object_to_string(void *self);
+
+/* Default object printer. */
+char *cl_object_printer(void *self);
 
 /** Increases the object's referece counter. 
  * @param object The object to be retained.
@@ -82,6 +94,6 @@ void cl_object_pool_pop();
 int cl_object_comparator(const void *p1, const void *p2);
 
 /** Returns a new, autoreleased, object */
-#define cl_object(size, type, dest) cl_object_autorelease(cl_object_new(size, type, dest))
+#define cl_object(...) cl_object_autorelease(cl_object_new(__VA_ARGS__))
 
 #endif				/* CL_OBJECT_H */

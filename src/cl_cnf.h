@@ -85,6 +85,6 @@ bool cl_cnf_evaluate(cl_cnf_t * self);
 #define cl_cnf_literal() cl_object_autorelease(cl_cnf_literal_new())
 
 /** returns a new, autoreleased, clause. */
-#define cl_cnf_clause(num, ...) cl_object_autorelease(cl_cnf_clause_new(num, __VA_ARGS__))
+#define cl_cnf_clause(...) cl_object_autorelease(cl_cnf_clause_new(__VA_ARGS__))
 
 #endif				/* CL_CNF_H */

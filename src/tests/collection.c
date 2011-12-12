@@ -18,6 +18,7 @@
 
 #include <check.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "../clumsy.h"
 #include "../cl_collection_rep.h"
 
@@ -42,9 +43,12 @@ void teardown()
 START_TEST(test_array)
 {
 	cl_object_t *obj[3] = {
-		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
-		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
-		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			      NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			      NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			      NULL)
 	};
 
 	/* test initialization */
@@ -128,9 +132,12 @@ START_TEST(test_array)
 END_TEST START_TEST(test_set)
 {
 	cl_object_t *obj[3] = {
-		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
-		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
-		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			      NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			      NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			      NULL)
 	};
 
 	cl_collection_t *arr = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
@@ -149,7 +156,7 @@ END_TEST START_TEST(test_set)
 	for (int i = 4; i < CL_COLLECTION_DEFAULT_CHUNK - 3; i++) {
 		cl_collection_add(arr,
 				  cl_object(sizeof(cl_object_t),
-					    CL_OBJECT_TYPE_OBJECT, NULL));
+					    CL_OBJECT_TYPE_OBJECT, NULL, NULL));
 	}
 
 	/* try to add duplicates */
@@ -168,9 +175,12 @@ END_TEST START_TEST(test_set)
 END_TEST START_TEST(test_flags_comparator)
 {
 	cl_object_t *obj[3] = {
-		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
-		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
-		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			      NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			      NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			      NULL)
 	};
 
 	cl_collection_t *arr = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
@@ -240,9 +250,12 @@ END_TEST START_TEST(test_flags_comparator)
 END_TEST START_TEST(test_queue)
 {
 	cl_object_t *obj[3] = {
-		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
-		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL),
-		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL)
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			      NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			      NULL),
+		cl_object_new(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL,
+			      NULL)
 	};
 
 	cl_collection_t *arr = cl_collection_new(0, CL_OBJECT_TYPE_COLLECTION,
@@ -267,6 +280,27 @@ END_TEST START_TEST(test_queue)
 	cl_object_release(arr);
 }
 
+END_TEST START_TEST(test_printer)
+{
+	cl_object_t *o1 =
+	    cl_object(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL, NULL);
+	cl_object_t *o2 =
+	    cl_object(sizeof(cl_object_t), CL_OBJECT_TYPE_OBJECT, NULL, NULL);
+	cl_collection_t *c = cl_collection(2, CL_OBJECT_TYPE_OBJECT, 0);
+	cl_collection_add(c, o1);
+	cl_collection_add(c, o2);
+
+	char *str = cl_object_to_string(c);
+	char *expected = malloc(sizeof(char) * 64);
+	fail_unless(expected != NULL);
+
+	sprintf(expected, "{%p, %p}", o1, o2);
+	fail_unless(strcmp(expected, str) == 0);
+
+	free(str);
+	free(expected);
+}
+
 END_TEST Suite *test_suite(void)
 {
 	Suite *s = suite_create("TEST COLLECTION");
@@ -277,6 +311,7 @@ END_TEST Suite *test_suite(void)
 	tcase_add_test(tc_core, test_set);
 	tcase_add_test(tc_core, test_flags_comparator);
 	tcase_add_test(tc_core, test_queue);
+	tcase_add_test(tc_core, test_printer);
 	suite_add_tcase(s, tc_core);
 
 	return s;

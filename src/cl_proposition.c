@@ -17,6 +17,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include "cl_proposition.h"
 #include "cl_proposition_rep.h"
@@ -31,6 +32,90 @@ static void destructor(void *self)
 		cl_object_release(p->_context.argv[0]);
 		cl_object_release(p->_context.argv[1]);
 	}
+}
+
+static char *print_complex_proposition(cl_proposition_t * p, char *op)
+{
+	char *prop1 = cl_object_to_string(p->_context.argv[0]);
+	char *prop2 = cl_object_to_string(p->_context.argv[1]);
+	size_t len1 = strlen(prop1);
+	size_t len2 = strlen(prop2);
+	size_t lenop = strlen(op);
+	size_t len = len1 + len2 + lenop + 5;
+	char *buffer = malloc(sizeof(char) * len);
+	assert(buffer);
+
+	strcpy(buffer, "(");
+	strcpy(buffer + 1, prop1);
+	strcpy(buffer + len1 + 1, " ");
+	strcpy(buffer + len1 + 2, op);
+	strcpy(buffer + len1 + lenop + 2, " ");
+	strcpy(buffer + len1 + lenop + 3, prop2);
+	strcpy(buffer + len1 + lenop + len2 + 3, ")");
+
+	free(prop1);
+	free(prop2);
+
+	return buffer;
+}
+
+static char *print_negation(char *prop)
+{
+	size_t len = strlen(prop) + 2;
+	char *buffer = malloc(sizeof(char) * len);
+	assert(buffer);
+
+	strcpy(buffer, "~");
+	strcpy(buffer + 1, prop);
+
+	return buffer;
+}
+
+static char *proposition_printer(void *self)
+{
+	assert(cl_object_type_check(self, CL_OBJECT_TYPE_PROPOSITION));
+	cl_proposition_t *p = (cl_proposition_t *) self;
+
+	char *buffer = NULL;
+	if (p->_context.op == cl_proposition_true_op) {
+		buffer = malloc(sizeof(char) * 5);
+		assert(buffer);
+		strcpy(buffer, "TRUE");
+	} else if (p->_context.op == cl_proposition_false_op) {
+		buffer = malloc(sizeof(char) * 6);
+		assert(buffer);
+		strcpy(buffer, "FALSE");
+	} else if (p->_context.op == cl_proposition_not_op) {
+		char *temp = cl_object_to_string(p->_context.argv[0]);
+		buffer = print_negation(temp);
+		free(temp);
+	} else if (p->_context.op == cl_proposition_and_op) {
+		buffer = print_complex_proposition(p, "^");
+	} else if (p->_context.op == cl_proposition_or_op) {
+		buffer = print_complex_proposition(p, "v");
+	} else if (p->_context.op == cl_proposition_imply_op) {
+		buffer = print_complex_proposition(p, "=>");
+	} else if (p->_context.op == cl_proposition_equivalent_op) {
+		buffer = print_complex_proposition(p, "<=>");
+	} else if (p->_context.op == cl_proposition_xor_op) {
+		buffer = print_complex_proposition(p, "+");
+	} else if (p->_context.op == cl_proposition_nand_op) {
+		char *temp = print_complex_proposition(p, "^");
+		buffer = print_negation(temp);
+		free(temp);
+	} else if (p->_context.op == cl_proposition_nor_op) {
+		char *temp = print_complex_proposition(p, "v");
+		buffer = print_negation(temp);
+		free(temp);
+	} else if (p->_context.op == cl_proposition_nimply_op) {
+		char *temp = print_complex_proposition(p, "=>");
+		buffer = print_negation(temp);
+		free(temp);
+	} else {
+		buffer = cl_object_printer(self);
+	}
+
+	return buffer;
 }
 
 cl_proposition_t *cl_proposition_new(cl_proposition_operator_t op, ...)
@@ -69,7 +154,7 @@ cl_proposition_t *cl_proposition_new(cl_proposition_operator_t op, ...)
 	/* initialize the object */
 	cl_proposition_t *res =
 	    cl_object_new(sizeof(cl_proposition_t), CL_OBJECT_TYPE_PROPOSITION,
-			  &destructor);
+			  &destructor, &proposition_printer);
 
 	/* set the operator (NULL will evaluate to FALSE) */
 	res->_context.op = op;
@@ -92,11 +177,11 @@ cl_proposition_t *cl_proposition_new(cl_proposition_operator_t op, ...)
 
 	/* in a case of a forumla the depth should be set pesimistic */
 	size_t depth0 =
-	    res->_context.argv[0] ? ((cl_proposition_t *) res->
-				     _context.argv[0])->_depth + 1 : 0;
+	    res->_context.argv[0] ? ((cl_proposition_t *) res->_context.
+				     argv[0])->_depth + 1 : 0;
 	size_t depth1 =
-	    res->_context.argv[1] ? ((cl_proposition_t *) res->
-				     _context.argv[1])->_depth + 1 : 0;
+	    res->_context.argv[1] ? ((cl_proposition_t *) res->_context.
+				     argv[1])->_depth + 1 : 0;
 	res->_depth = depth0 > depth1 ? depth0 : depth1;
 
 	/* finally, if the operator is comutative

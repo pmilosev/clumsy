@@ -20,7 +20,6 @@
 #define CL_PROPOSITION_H
 
 #include "cl_object.h"
-#include <stdarg.h>
 
 /** Proposition object type flag. */
 #define CL_OBJECT_TYPE_PROPOSITION 0x01
@@ -95,7 +94,7 @@ bool cl_proposition_nimply_op(cl_proposition_t * self);
 /** Returns a new, autoreleased proposition - left implication */
 #define cl_proposition_implied(p1, p2) cl_proposition(&cl_proposition_imply_op, p2, p1)
 /** Returns a new, autoreleased proposition - equivalency */
-#define cl_proposition_equivalent(p1, p2) cl_proposition(&cl_proposition_equivalent_op, p2, p1)
+#define cl_proposition_equivalent(p1, p2) cl_proposition(&cl_proposition_equivalent_op, p1, p2)
 /** Returns a new, autoreleased proposition - xor */
 #define cl_proposition_xor(p1, p2) cl_proposition(&cl_proposition_xor_op, p1, p2)
 /** Returns a new, autoreleased proposition - nand */
